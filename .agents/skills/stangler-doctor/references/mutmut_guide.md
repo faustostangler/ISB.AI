@@ -139,7 +139,7 @@ uv run mutmut run --paths-to-mutate src/ingestion/domain/entities.py
 |-------|----------------------|-----------|
 | **Domain** | **0 survivors** | Core business logic must be fully tested |
 | **Application** | **0 survivors** | Use case orchestration must be verified |
-| **Infrastructure** | **< 5% survivors** | Some adapter code is hard to mutate (e.g., connection strings) |
+| **Infrastructure** | **< 1% survivors** | Some adapter code is hard to mutate (e.g., connection strings) |
 | **Presentation** | **Not required** | Thin layer tested via integration/E2E tests |
 
 ---
