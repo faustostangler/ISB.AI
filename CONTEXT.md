@@ -104,6 +104,64 @@ _Avoid_: Prompt caching, prefix storage, context buffer
 The metric measuring the proportion of token prompt sequences resolved from previously cached key-value states in the Radix Tree without requiring GPU computation.
 _Avoid_: Cache match, retrieval score, memory hit
 
+### Experiment Tracking & Model Registry
+
+**Model Registry**:
+The centralized repository service inside MLflow responsible for version control, promotion stages, tag management, and lineage tracking of candidate machine learning model weights.
+_Avoid_: Weight store, model bucket, release list
+
+**Experiment Tracking**:
+The practice of logging parameters, code versions, metrics, and artifact outputs associated with each individual machine learning model training or validation run to ensure repeatability.
+_Avoid_: Metric logging, execution logging, training stats
+
+### Pipeline Orchestration
+
+**Training Pipeline**:
+The modular execution sequence (implemented as pure Python modules and executed via CLI or the asynchronous Task Queue) responsible for data loading, preprocessing, model cross-validation, evaluation, and registry promotion.
+_Avoid_: DAG pipeline, workflow graph, Prefect flow, ZenML pipeline
+
+### Model Monitoring & Drift
+
+**Data Drift**:
+The statistical divergence in the distribution of model input features (such as user notes, web scraps, or their embeddings) compared to the baseline training dataset.
+_Avoid_: Feature shift, distribution skew, input drift
+
+**Concept Drift**:
+The degradation in model prediction accuracy and calibration over time, caused by changes in the underlying business domain relationship between inputs and targets.
+_Avoid_: Model decay, performance drop, class shift
+
+### Security & Vulnerability Scanning
+
+**Dependency Auditing**:
+The automated process of checking third-party application package lock manifests (such as `uv.lock`) for known security vulnerabilities prior to container image compilation.
+_Avoid_: Library checking, package auditing, dependency verification
+
+**Image Scanning**:
+The static analysis process of inspecting container filesystem layers to identify security vulnerabilities, misconfigurations, and compliance violations in system packages.
+_Avoid_: Docker check, container auditing, image testing
+
+### Observability & Telemetry
+
+**Telemetry Agent**:
+The high-performance proxy service (running as a sidecar/gateway container) that receives, batches, filters, and routes metrics, logs, and traces from the application to backend monitoring platforms.
+_Avoid_: Monitoring server, logging proxy, collector hub
+
+**Context Propagation**:
+The practice of injecting and extracting unique tracing identifiers (e.g. trace and span IDs) across process, network, and queue boundaries to correlate distributed transactions.
+_Avoid_: ID passing, trace header routing, span linking
+
+### Cloud & Hardware Allocation
+
+**GPU Lock**:
+A distributed concurrency lock (acquired via the `DistributedLockingPort`) that coordinates access to a physical GPU device, ensuring exclusive execution between model training pipelines and online inference sidecars to prevent memory starvation.
+_Avoid_: Device key, GPU flag, VRAM blocker
+
+
+
+
+
+
+
 
 
 
