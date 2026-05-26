@@ -17,7 +17,7 @@ We need a serving architecture that achieves optimal performance, provides hardw
 
 ## Decision
 
-We will define a `ModelInferencePort` in the application layer. All model inference (embeddings, classification, chat generation) will be executed out-of-process by communicating with a dedicated sidecar container running **vLLM** or **SGLang**.
+We will define a `ModelInferencePort` in the application layer. All model inference (embeddings, classification, chat generation) will be executed out-of-process by communicating with a dedicated sidecar container running **SGLang** optimized with **RadixAttention**.
 
 Specific details of this architecture:
 1. **Application Interface**:
@@ -29,12 +29,12 @@ Specific details of this architecture:
            pass
    ```
 2. **Out-of-Process Sidecar**:
-   In both local development and production, we run a dedicated container for the model server. The application communicates with it asynchronously over HTTP (OpenAI-compatible REST API) or gRPC.
+   In both local development and production, we run a dedicated container for the model server. The application communicates with it asynchronously over SGLang's OpenAI-compatible HTTP REST API.
 3. **Local Dev VRAM Constraints**:
    To fit model executions inside our local RTX 2060 (6 GB VRAM), we will:
-   - Configure the local sidecar to load highly compressed, quantized model weights (e.g. 4-bit AWQ or GPTQ configurations).
+   - Configure the local SGLang sidecar to load highly compressed, quantized model weights (e.g. 4-bit AWQ or GPTQ configurations).
    - Reserve GPU access in `docker-compose.yml` via the `nvidia` driver reservations block.
-   - Utilize vLLM's paged memory allocation to prevent cache fragmentation and OOM.
+   - Utilize SGLang's **RadixAttention** prefix tree caching, enabling automatic sharing and caching of system prompts, few-shot examples, and RAG context blocks across concurrent requests.
 4. **Production Configuration**:
    The production deployment will target high-precision model checkpoints (FP16 or FP8) on cloud GPUs, managed simply by changing environment variables (`MODEL_INFERENCE_URL`, `MODEL_CHECKPOINT_NAME`) without modifying the application code.
 
@@ -42,8 +42,8 @@ Specific details of this architecture:
 
 ### Positive
 * **GIL and Event Loop Isolation**: Main application and background worker processes remain lightweight and non-blocking.
-* **VRAM Safety (RTX 2060)**: PagedAttention blocks allocation prevents memory OOMs during concurrent local development indexing.
-* **Zero Code Changes for Scaling**: Easily swap local AWQ/GPTQ models for larger production models or external APIs (such as HuggingFace TGI) by changing the network adapter config.
+* **Radix Cache Hits**: Hierarchical prefix sharing in the SGLang Radix Tree reduces VRAM usage and shortens Time-To-First-Token (TTFT) by preventing redundant processing of system prompts and vector retrieved context blocks.
+* **Zero Code Changes for Scaling**: Easily swap local SGLang AWQ/GPTQ models for larger production models or external APIs by changing the network adapter configuration.
 
 ### Negative
 * **Networking Overhead**: Negligible latency penalty for inter-container communication on the same bridge network (mitigated by asynchronous HTTP connections).

@@ -14,6 +14,7 @@ This specification defines the validation criteria and structural routing rules 
 Ingress is handled as an infrastructure adapter. While it is outside the pure business domain, the following invariants apply:
 - **Invariant 1**: All public HTTP traffic (port 80) must be automatically redirected to HTTPS (port 443).
 - **Invariant 2**: All requests matching the API prefix must be reverse-proxied to the FastAPI presentation port (8000).
+- **Invariant 3**: The API presentation container must execute multiple concurrent Uvicorn worker processes mapped to the host's CPU core capacity to ensure non-blocking route evaluations.
 
 ## 3. Test Strategy Classification
 
@@ -45,6 +46,11 @@ Ingress is handled as an infrastructure adapter. While it is outside the pure bu
   - `X-Frame-Options: DENY`
   - `X-Content-Type-Options: nosniff`
   - `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+
+### Scenario 4: Multi-Worker Process Verification
+- **Given**: The FastAPI application container is running.
+- **When**: Inspecting running processes inside the container.
+- **Then**: There must be `N` independent Python processes running Uvicorn workers, where `N > 1` (scaled to system CPU capacity).
 
 ## 5. Boundary Conditions & Exception Mapping
 

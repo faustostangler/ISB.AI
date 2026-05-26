@@ -21,30 +21,30 @@ This specification details the validation criteria for out-of-process model exec
 * **Unit Tests (Domain)**:
   - Scope: Test domain use cases with a mock `ModelInferencePort` to ensure correct response extraction and exception handling.
 * **Integration Tests (Adapter)**:
-  - Scope: Test the HTTP-based sidecar adapter (`vLLMAdapter` or `SGLangAdapter`).
-  - Assertions: Mock server endpoints (using `pytest-httpx` or similar) to verify handling of:
-    - Success (200 OK with valid OpenAI-format JSON).
+  - Scope: Test the HTTP-based sidecar adapter (`SGLangAdapter`).
+  - Assertions: Mock SGLang REST endpoints (using `pytest-httpx` or similar) to verify handling of:
+    - Success (200 OK with valid OpenAI-compatible chat completion JSON).
     - Client timeouts.
-    - Quantization headers.
+    - Radix tree prefix caching headers.
     - Server crashes (500 Internal Server Error, 502 Bad Gateway).
 
 ## 4. Acceptance Criteria (Scenarios)
 
 ### Scenario 1: Standard Generation (Success)
-* **Given**: A running vLLM/SGLang model sidecar.
+* **Given**: A running SGLang model sidecar with RadixAttention active.
 * **When**: Calling `generate_completion(prompt, system_prompt)` on the port.
 * **Then**: The return value must be a non-empty string.
 * **And**: The call must complete asynchronously without blocking other task executions.
 
 ### Scenario 2: Inference Sidecar Offline (Exception Mapping)
-* **Given**: The model sidecar container is stopped or unavailable.
+* **Given**: The SGLang model sidecar container is stopped or unavailable.
 * **When**: Calling the inference port.
 * **Then**: The adapter must timeout within 5 seconds.
 * **And**: Raise `ModelServerUnavailableException`.
 
 ### Scenario 3: Quantized Profile Verification
 * **Given**: The application is running in local `development` mode.
-* **When**: The model server configuration is loaded.
+* **When**: The SGLang model server configuration is loaded.
 * **Then**: The loaded model file parameter must resolve to an INT4/AWQ quantized checkpoint (e.g. `SmolLM-360M-Instruct-AWQ`) to stay within the 6 GB VRAM envelope.
 
 ### Scenario 4: Fast Fail on Startup
