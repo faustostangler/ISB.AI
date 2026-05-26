@@ -14,6 +14,8 @@ The proxy tier must be robust, secure by default, and simple to configure, minim
 
 We will adopt Caddy as the edge ingress, reverse proxy, and API gateway because it provides automatic HTTPS certificate management out-of-the-box, has a highly readable and concise configuration syntax (Caddyfile), is built on a memory-safe language (Go), and exposes a REST API for dynamic JSON-based configuration updates without process reloads.
 
+Additionally, our core Python FastAPI presentation container will execute using native multi-worker Uvicorn (`uvicorn --workers N` where `N = (2 * CPU_cores) + 1` in production) behind the Caddy proxy. This allows the application container to leverage multi-core host CPU resources under Python 3.13 without the operational footprint of Gunicorn, while Caddy load-balances external traffic to the Uvicorn socket.
+
 ## Consequences
 
 ### Positive
