@@ -48,6 +48,14 @@ Key details of this implementation include:
 - **Cons**: High vendor lock-in; disjointed multi-cloud configuration files.
 - **Why rejected**: Fails multi-cloud and portability requirements.
 
+## Domain Model Impact
+
+This decision affects only the provisioned cloud environment structure. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (infrastructure provisioning runs out-of-band relative to application execution)
+- **Adapter**: Pulumi Python stacks (`__main__.py`, configuration schemas)
+- **Bounded Context**: Platform (Infrastructure)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected (IaC isolated in separate `infra/` or repository deployments)

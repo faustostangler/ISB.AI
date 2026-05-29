@@ -42,6 +42,9 @@ Specific implementation details:
 * **Service Maintenance**: The team must manage the MLflow container, PostgreSQL schema allocations, and S3 bucket IAM/access permissions.
 * **No Built-in Pipeline Lineage**: MLflow tracks experiments but does not enforce DAG execution steps. We will structure our training pipelines using clean, modular, and unit-tested Python scripts.
 
+### Neutral
+* **Registry Storage**: SQLite is used for local registry metadata and PostgreSQL is used in staging/production, requiring no adapter code changes due to MLflow's abstraction.
+
 ## Alternatives Considered
 
 ### Alternative B: ZenML Pipelines with MLflow Adapter
@@ -53,6 +56,14 @@ Specific implementation details:
 * **Pros**: Superior out-of-the-box visualizations; zero operational maintenance.
 * **Cons**: Shakes developer autonomy during offline work; requires sending metadata statistics to third-party endpoints.
 * **Why rejected**: Violates security guidelines and network isolation requirements.
+
+## Domain Model Impact
+
+- **Port**: `ModelRegistryPort` (application layer — model registry query and promotion interface)
+- **Adapters**:
+  - `MlflowRegistryAdapter` (infrastructure — remote/local MLflow server API client)
+- **Bounded Context**: MLOps Context (Supporting Domain)
+- **Value Objects**: `ModelVersion` (validated version string), `ArtifactPath` (validated storage path)
 
 ## Compliance
 
@@ -66,3 +77,4 @@ Specific implementation details:
 - Related ADRs: [ADR-009: Out-of-Process Model Serving](./ADR-009-out-of-process-model-serving.md), [ADR-022: Model Validation Partitioning and Accuracy Metrics](./ADR-022-model-validation-and-evaluation.md)
 - Domain reference: `references/21-08 MLOps and LLMOps 1.md` (Structured LLM outputs and MLOps tools)
 - Domain reference: `references/22-08 MLOps and LLMOps 2.md` (LLMOps monitoring and registry)
+

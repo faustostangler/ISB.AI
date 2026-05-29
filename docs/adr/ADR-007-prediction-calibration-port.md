@@ -48,17 +48,28 @@ Specific details of this design:
 * **Calibration Set Management**: We must store and periodically refresh the validation/calibration nonconformity scores in the database (refreshed asynchronously when the model is retrained).
 * **Storage Lookups**: Calibrating a prediction requires fetching the nonconformity quantile, which we will mitigate by caching the pre-computed $\hat{q}$ quantile threshold in Redis.
 
+### Neutral
+* **Quantile Caching**: The computed calibration quantile is stored ephemerally in Redis cache, falling back to database retrieval if the cache is cold.
+
 ## Alternatives Considered
 
 ### Alternative A: RawSoftmax Thresholding
 * **Pros:** Zero database lookups; trivial to implement.
-* **Cons:** Softmax scores do not correlate to actual confidence; highly susceptible to out-of-domain failures.
+- **Cons:** Softmax scores do not correlate to actual confidence; highly susceptible to out-of-domain failures.
 * **Why rejected:** Underestimates uncertainty and leads to silent database pollution.
 
 ### Alternative C: Quantile Regression Neural Network
 * **Pros:** Real-time sample-specific calibration.
 * **Cons:** Heavy implementation coupling to neural network layers; makes unit testing very complex.
 * **Why rejected:** Violates the KISS principle.
+
+## Domain Model Impact
+
+- **Port**: `PredictionCalibratorPort` (application layer — classification calibration interface)
+- **Adapters**:
+  - `ConformalCalibratorAdapter` (infrastructure — conformal prediction calculator using cached quantiles)
+- **Bounded Context**: Classification Context (Supporting Domain)
+- **Entities/Value Objects**: `CalibratedPredictionSet` (holds categories meeting the confidence threshold), `ConfidenceLevel` (float in range `(0.0, 1.0)`)
 
 ## Compliance
 
@@ -71,3 +82,4 @@ Specific details of this design:
 
 - Domain reference: `references/10-05 IA and Machine Learning Fundamentals 1.md`
 - Code layout: `references/project_layout.md`
+

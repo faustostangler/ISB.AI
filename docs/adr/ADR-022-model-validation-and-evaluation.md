@@ -50,6 +50,14 @@ We will implement a unified model validation pipeline characterized by:
 - **Cons**: High operational cost; cannot catch regressions before deployment.
 - **Why rejected**: Highly unsafe; increases MTTR (Mean Time To Recovery) and DORA Change Failure Rates.
 
+## Domain Model Impact
+
+This decision affects only the validation scripts and MLOps metrics collection pipelines. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (validation and evaluation processes are executed as part of training pipelines, outside the runtime application)
+- **Adapter**: `TrainingPipelineAdapter` (infrastructure — handles the training execution flow)
+- **Bounded Context**: MLOps Context (Supporting Domain)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected (validation logic isolated in MLOps/training scripts)

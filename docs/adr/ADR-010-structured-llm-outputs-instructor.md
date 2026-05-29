@@ -37,6 +37,9 @@ Specific details of this architecture:
 ### Negative
 * **Latent Retry Cost**: Schema failures incur a network retry round-trip, which we will mitigate by writing clean, explicit instructions in our system prompt templates.
 
+### Neutral
+* **Provider Cost**: Falling back to cloud APIs introduces monetary operational costs for API usage, which is acceptable to maintain overall pipeline reliability.
+
 ## Alternatives Considered
 
 ### Alternative B: Token-Level Constraints (Outlines)
@@ -54,6 +57,29 @@ Specific details of this architecture:
 * **Cons:** Extremely fragile; fails on simple formatting errors.
 * **Why rejected:** High rate of database insertion failures.
 
+## Domain Model Impact
+
+- **Port**: `MetadataExtractorPort` (application layer — structured extraction interface)
+- **Adapters**:
+  - `InstructorMetadataExtractorAdapter` (infrastructure — Instructor wrapper over SGLang client, with failover to OpenAI/Anthropic APIs)
+- **Bounded Context**: Knowledge Context (Core Domain)
+- **Value Objects**: `DocumentMetadata` (validated Pydantic schema representing the extracted metadata structure)
+
+## Langfuse Ingestion Strategy
+
+- **Trace Taxonomy**:
+  - `trace_id`: Maps to the parent document ingestion or extraction job ID.
+  - Tags: `provider` (local/openai/anthropic), `retry_count`.
+- **Span Hierarchy**:
+  - Parent trace: `ingest` or `extract_metadata`
+  - Child spans:
+    - `instructor_llm_call` (wraps the Instructor-patched API request)
+    - `llm_self_correction` (tracks any self-correction loops triggered by schema validation failures)
+- **Prompt Version Tracking**:
+  - Prompt name: `metadata_extraction_system` (version `2.1.0`) registered and loaded from Langfuse prompt registry.
+- **Score Schema**:
+  - Tracks extraction latency, token costs, and `extraction_accuracy` (Pydantic validation pass rate).
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected
@@ -65,3 +91,4 @@ Specific details of this architecture:
 
 - Domain reference: `references/21-08 MLOps and LLMOps 1.md`
 - Layout reference: `references/project_layout.md`
+

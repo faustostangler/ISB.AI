@@ -47,6 +47,15 @@ Use cases will invoke background tasks by interacting solely with the `TaskQueue
 - **Cons:** Runs in-process; cannot scale horizontally; CPU-heavy tasks (like local embeddings) will block the API server's event loop.
 - **Why rejected:** Not suitable for CPU-bound or heavy ML inference workloads.
 
+## Domain Model Impact
+
+- **Port**: `TaskQueuePort` (application layer — async job scheduling interface)
+- **Adapters**:
+  - `ImmediateTaskQueueAdapter` (infrastructure — synchronous in-process execution)
+  - `RedisDramatiqAdapter` (infrastructure — Redis broker out-of-process worker)
+- **Value Object**: Task payload DTOs (serializable Pydantic schemas)
+- **Bounded Context**: Shared Kernel (cross-context capability)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected (Ports in application, concrete queue adapters in infrastructure)
@@ -57,4 +66,5 @@ Use cases will invoke background tasks by interacting solely with the `TaskQueue
 
 ## References
 
+- Related ADRs: [ADR-024: Pipeline Orchestration](ADR-024-pipeline-orchestration-dramatiq.md)
 - Domain reference: `references/project_layout.md`, `references/37-DevOps, DDD, TDD, ADRs, Code.md`

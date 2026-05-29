@@ -44,12 +44,23 @@ Specific implementation details:
 * **Minor Resource Footprint**: Running the collector container consumes a small amount of memory (~30-50MB RAM) on our development workstation.
 * **Configuration Overhead**: Requires maintaining the `otel-collector-config.yaml` file.
 
+### Neutral
+* **Network Protocol**: The collector supports both gRPC (port 4317) and HTTP (port 4318) protocols, allowing clients to connect using either transport format.
+
 ## Alternatives Considered
 
 ### Alternative B: Direct SDK-to-Backend Exporting
 * **Pros**: Avoids deploying the extra collector container.
 * **Cons**: Introduces event-loop blocking risks; hard-couples Python package imports and configurations to specific vendor APIs.
 * **Why rejected**: Violates hexagonal architectural separation and degrades python event-loop performance.
+
+## Domain Model Impact
+
+This decision affects only the container collection and routing topology. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (telemetry exporting runs out-of-band and is configured strictly at the container orchestration tier)
+- **Adapter**: OTel Collector configuration files (`otel-collector-config.yaml`)
+- **Bounded Context**: Platform (Infrastructure)
 
 ## Compliance
 
@@ -62,3 +73,4 @@ Specific implementation details:
 
 - Related ADRs: [ADR-014: Unified Observability Architecture via OpenTelemetry, Prometheus, Grafana Loki, and Sentry](./ADR-014-observability-architecture.md)
 - Domain reference: `references/31-12 Observability and Operation 3.md` (OpenTelemetry Traces Concept)
+

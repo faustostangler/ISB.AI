@@ -9,13 +9,14 @@
 
 This specification defines the validation criteria for the `VectorStoragePort` implementation. It guarantees that document chunk storage, dense vector HNSW indexing, full-text sparse retrieval, Reciprocal Rank Fusion (RRF) ranking, and ACID transactional purge cascade behaviors function reliably and securely.
 
-## 2. Invariants & Storage Rules
+## 2. Bounded Context & Domain Invariants
 
-* **Invariant 1**: Document text chunks, parent document metadata, and high-dimensional vector embeddings must live in the same relational database row, guaranteeing single-transaction write integrity.
-* **Invariant 2**: Any delete instruction triggered on a document record must instantly cascade to remove its associated text chunks and vector embeddings (LGPD owner-only compliance).
-* **Invariant 3**: Hybrid search execution must return a unified list of results ranked by Reciprocal Rank Fusion (RRF) calculated over dense (cosine similarity) and sparse (TSVector match) rankings.
-* **Invariant 4**: All search queries must be dynamically constrained by owner identifiers passed from the presentation boundary, rejecting any out-of-bounds cross-tenant access.
-* **Invariant 5**: The dimensionality of ingested embeddings must match the configuration of the active DroPE embedding model (e.g. 1536 or 768 dimensions), failing-fast on dimension mismatch.
+- **Value Object**: `DenseVector`
+  - Validation: Must be a float array of exactly 768 or 1536 dimensions. Values must not contain NaN or Inf.
+- **Value Object**: `SearchQuery`
+  - Validation: Must be a non-empty string, trimmed of whitespace.
+- **Value Object**: `SearchResult`
+  - Validation: Must contain the document ID (valid uuid string), text segment, and an RRF score in range `[0.0, 1.0]`.
 
 ## 3. Test Strategy Classification
 
@@ -28,6 +29,9 @@ This specification defines the validation criteria for the `VectorStoragePort` i
     - Test hybrid SQL execution: assert that RRF calculations merge sparse text search ranks and dense cosine distance ranks correctly.
     - Test ACID transactional safety: assert that database rollback occurs on aborted write transactions, avoiding partially written chunks/embeddings.
     - Test cascading delete constraints.
+- **LLM Evals (Non-Deterministic Gates)**:
+  - Scope: Verification of search result relevance and chunk retrieval precision.
+  - Rubric: Linked to [EVAL-012-vector-hybrid-search.md](./EVAL-012-vector-hybrid-search.md)
 
 ## 4. Acceptance Criteria (Scenarios)
 
@@ -63,7 +67,11 @@ This specification defines the validation criteria for the `VectorStoragePort` i
 | Delete Query | Invalid/Non-existent ID | Returns `0` records affected; no exception raised |
 | Query Filter | Unauthenticated/Missing Owner ID | `UnauthorizedSearchQueryException` |
 
-## 6. Observability & Telemetry Assertions
+## 6. Regression Anchors (For Bug Fixes Only)
+
+*None at present (greenfield configuration).*
+
+## 7. Observability & Telemetry Assertions
 
 * **Telemetry Metrics**:
   - Expose histogram `isb_vector_search_duration_seconds` tracking search latency, bucketed for sub-10ms monitoring.
@@ -71,3 +79,4 @@ This specification defines the validation criteria for the `VectorStoragePort` i
 * **Audit Logs**:
   - Log search execution query parameters (excluding sensitive PII data) at `DEBUG` level.
   - Log any database lock contention or HNSW index build warning events at `WARN` level.
+

@@ -40,6 +40,9 @@ Specific implementation details:
 ### Negative
 * **Cloud Costs During Training**: Runs that overlap with active user requests will temporarily incur cloud API costs while the GPU lock is active.
 
+### Neutral
+* **Lock Duration Variance**: The training pipeline complexity dictates how long the GPU lock is held, ranging from minutes (calibration) to hours (fine-tuning).
+
 ## Alternatives Considered
 
 ### Alternative B: NVIDIA Multi-Process Service (MPS)
@@ -51,6 +54,15 @@ Specific implementation details:
 * **Pros**: Zero local VRAM contention.
 * **Cons**: Breaks offline capabilities; introduces cost and boot delays for minor local tests.
 * **Why rejected**: Violates offline-first local workstation self-containment.
+
+## Domain Model Impact
+
+This decision affects only the resource coordination layer. No Domain Entities or Value Objects are modified.
+
+- **Port**: `LockPort` (application layer — locking interface, see [ADR-005](./ADR-005-distributed-locking-abstraction.md))
+- **Adapters**:
+  - `RedisLockAdapter` / `InMemLockAdapter` (infrastructure — manages the `gpu_hardware_lock` key)
+- **Bounded Context**: Platform / Shared Kernel (cross-cutting hardware management)
 
 ## Compliance
 
@@ -64,3 +76,4 @@ Specific implementation details:
 
 - Related ADRs: [ADR-005: Distributed Locking Abstraction via Hexagonal Port](./ADR-005-distributed-locking-abstraction.md), [ADR-009: Out-of-Process Model Serving](./ADR-009-out-of-process-model-serving.md), [ADR-010: Structured LLM Outputs via Instructor with Multi-Provider Failover](./ADR-010-structured-llm-outputs-instructor.md), [ADR-024: Training Pipeline Orchestration via Pure Python and Task Queue Integration](./ADR-024-pipeline-orchestration-dramatiq.md)
 - Domain reference: `references/34-13 Cloud and Hardware for AI 3.md` (GPU VRAM management)
+

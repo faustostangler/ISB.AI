@@ -43,6 +43,14 @@ Additionally, our core Python FastAPI presentation container will execute using 
 - **Cons:** Complex configuration syntax; requires Certbot/external tooling for Let's Encrypt; reloading config can drop/disturb active connections and requires shell access.
 - **Why rejected:** Nginx introduces extra complexity for SSL certificate lifecycle management and lacks a native, easy-to-use JSON API for dynamic routing.
 
+## Domain Model Impact
+
+This ADR affects **infrastructure-only** components. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (Caddy operates outside the application boundary)
+- **Adapter**: Caddy Ingress container configuration (`Caddyfile`, `docker-compose.yml`)
+- **Bounded Context**: Platform (Infrastructure)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected (ingress is kept strictly in the outer infrastructure tier)
@@ -53,4 +61,5 @@ Additionally, our core Python FastAPI presentation container will execute using 
 
 ## References
 
+- Related ADRs: [ADR-006: Secure Non-Root Container](ADR-006-secure-non-root-container.md), [ADR-014: Observability Architecture](ADR-014-observability-architecture.md)
 - Domain reference: `references/2-01 Computing Fundamentals and Servers 2.md`

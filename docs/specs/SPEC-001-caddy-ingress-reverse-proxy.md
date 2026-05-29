@@ -12,9 +12,10 @@ This specification defines the validation criteria and structural routing rules 
 ## 2. Bounded Context & Domain Invariants
 
 Ingress is handled as an infrastructure adapter. While it is outside the pure business domain, the following invariants apply:
-- **Invariant 1**: All public HTTP traffic (port 80) must be automatically redirected to HTTPS (port 443).
-- **Invariant 2**: All requests matching the API prefix must be reverse-proxied to the FastAPI presentation port (8000).
-- **Invariant 3**: The API presentation container must execute multiple concurrent Uvicorn worker processes mapped to the host's CPU core capacity to ensure non-blocking route evaluations.
+- **Value Object**: `AllowedHost`
+  - Validation: Must match the allowed host domain (e.g. `localhost` or configured domain name).
+- **Value Object**: `HttpResponseHeader`
+  - Validation: Must contain secure defaults (X-Frame-Options, X-Content-Type-Options, etc.).
 
 ## 3. Test Strategy Classification
 
@@ -59,8 +60,13 @@ Ingress is handled as an infrastructure adapter. While it is outside the pure bu
 | Request Host        | `localhost` | Allowed, routed to FastAPI |
 | Host Header         | `malicious.domain` | Rejected / 403 or ignored if not in allowed hosts |
 
-## 6. Observability & Telemetry Assertions
+## 6. Regression Anchors (For Bug Fixes Only)
+
+*None at present (greenfield configuration).*
+
+## 7. Observability & Telemetry Assertions
 
 - **Caddy Access Logs**:
   - Access logs must be emitted in JSON format to standard output.
   - Log format must contain fields: `request.method`, `request.uri`, `resp_status`, `duration`.
+

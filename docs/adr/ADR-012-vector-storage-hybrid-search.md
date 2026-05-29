@@ -36,6 +36,9 @@ To achieve industrial-grade retrieval precision, we will combine sparse keyword-
 * **Database Memory Constraints**: HNSW indexes are memory-bound. To maintain high query speeds, the index must reside in Postgres memory, requiring careful allocation of `shared_buffers` and `work_mem` as the database scales.
 * **Index Build Overhead**: Building HNSW indexes is CPU and RAM intensive. We will run index builds asynchronously during database migration tasks or off-peak periods.
 
+### Neutral
+* **Indexing Algorithm Parameters**: Standard HNSW configuration parameters (`m` and `ef_construction`) are configured to prioritize recall over compilation speed, which is acceptable since indexes are built during deploy times.
+
 ## Alternatives Considered
 
 ### Option B: Distributed Dual-Store (Postgres + Pinecone Serverless)
@@ -47,6 +50,29 @@ To achieve industrial-grade retrieval precision, we will combine sparse keyword-
 * **Pros:** Zero database configuration; extremely fast memory queries.
 * **Cons:** Runs inside the application worker memory. High-concurrency vector calculations block the Python GIL, freeze use-case loops, and lead to worker container OOMs. It also prevents clean horizontal scaling of worker containers since there is no unified state store.
 * **Why rejected:** Violates container isolation and resource scaling constraints.
+
+## Domain Model Impact
+
+- **Port**: `VectorStoragePort` (application layer — vector store and query execution interface)
+- **Adapters**:
+  - `PgVectorStorageAdapter` (infrastructure — pgvector and SQL full-text search adapter)
+- **Bounded Context**: Knowledge Context (Core Domain)
+- **Value Objects**: `DenseVector` (validated float array), `SearchQuery` (validated query text), `SearchResult` (contains document ID, segment text, and combined score)
+
+## Langfuse Ingestion Strategy
+
+- **Trace Taxonomy**:
+  - `trace_id`: Maps to the parent query execution or chat generation job ID.
+  - Tags: `search_type` (hybrid/vector/text), `top_k`.
+- **Span Hierarchy**:
+  - Parent trace: `query` or `rag_pipeline`
+  - Child spans:
+    - `sparse_query` (tracks Postgres full-text search execution)
+    - `dense_query` (tracks pgvector cosine distance execution)
+    - `rrf_fusion` (tracks the reciprocal rank fusion sorting stage)
+- **Prompt Version Tracking**: N/A (retrieval execution does not use dynamic prompts).
+- **Score Schema**:
+  - Tracks retrieval latency and recall@K quality metrics.
 
 ## Compliance
 
@@ -60,3 +86,4 @@ To achieve industrial-grade retrieval precision, we will combine sparse keyword-
 
 - Related ADRs: [ADR-003: Authorization Port](ADR-003-authorization-port.md), [ADR-008: Document Embedding DroPE](ADR-008-document-embedding-drope.md)
 - Domain reference: `references/23-09 AI and LLM System Architecture 1.md`, `references/24-09 AI and LLM System Architecture 2.md`
+

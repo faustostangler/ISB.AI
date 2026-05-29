@@ -46,6 +46,14 @@ The schema export command will be integrated into local format/lint loops (e.g.,
 - **Cons:** Complex web browser integration (requires gRPC-web proxying or specialized client-side libraries).
 - **Why rejected:** Overengineered for a web application BFF-to-Monolith layout.
 
+## Domain Model Impact
+
+This decision affects only the **Presentation layer** boundary. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (API serialization runs in the Presentation Layer, not inside the core Application or Domain)
+- **Adapter**: FastAPI routing/validation handlers, Orval generated client
+- **Bounded Context**: Platform / Presentation (Cross-cutting infrastructure)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected (schemas and routers stay in presentation layer)
@@ -57,3 +65,4 @@ The schema export command will be integrated into local format/lint loops (e.g.,
 ## References
 
 - Domain reference: `references/37-DevOps, DDD, TDD, ADRs, Code.md`
+

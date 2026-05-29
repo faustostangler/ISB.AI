@@ -44,6 +44,9 @@ Specific details of this implementation:
 ### Negative
 * **Memory Scaling**: Attention cost remains quadratic $O(N^2)$. For extremely long files, we must enforce a safety limit (e.g., 32,768 tokens) or delegate processing to background worker queues to prevent out-of-memory errors on local dev machines.
 
+### Neutral
+* **Model Weight Deployment**: Embedding model weights are downloaded during container build/provisioning time, rather than dynamically on boot, to maintain fail-fast startup.
+
 ## Alternatives Considered
 
 ### Alternative A: Static Overlapping Chunking
@@ -61,6 +64,26 @@ Specific details of this implementation:
 * **Cons:** Content-matching heads degrade at large token distances.
 * **Why rejected:** Fails "needle-in-a-haystack" and remote fact-retrieval benchmarks.
 
+## Domain Model Impact
+
+- **Port**: `DocumentEmbeddingPort` (application layer — document embedding generator interface)
+- **Adapters**:
+  - `DroPeEmbeddingAdapter` (infrastructure — local transformer model execution adapter)
+- **Bounded Context**: Knowledge Context (Core Domain)
+- **Value Objects**: `DenseVector` (validated list of floats), `DocumentContent` (validated text content)
+
+## Langfuse Ingestion Strategy
+
+- **Trace Taxonomy**:
+  - `trace_id`: Maps to the parent document ingestion job ID.
+  - Tags: `model_name` (e.g. `SmolLM-DroPE`), `sequence_length`.
+- **Span Hierarchy**:
+  - Parent trace: `ingest` or `query`
+  - Child span: `generate_embeddings` (covers tokenization, forward pass, and mean pooling)
+- **Prompt Version Tracking**: N/A (embedding execution does not use dynamic prompts).
+- **Score Schema**:
+  - Tracks embedding latency and token count.
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected
@@ -72,3 +95,4 @@ Specific details of this implementation:
 
 - Domain reference: `references/DroPE/Extending the Context of Pretrained LLMs by Dropping their Positional Embeddings`
 - Code layout: `references/project_layout.md`
+

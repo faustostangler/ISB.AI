@@ -12,8 +12,10 @@ This specification defines the contract for background task execution in ISB.AI.
 ## 2. Bounded Context & Domain Invariants
 
 Background task scheduling is handled via the `TaskQueuePort` defined in the application layer.
-- **Invariant 1**: All task inputs must be serializable to JSON (primitives, dictionaries, or Pydantic models).
-- **Invariant 2**: Tasks must be idempotent to allow safe retries.
+- **Value Object**: Task payload DTOs (serializable Pydantic schemas)
+  - Validation: Must serialize to JSON.
+- **Entity**: `Task`
+  - Invariants: Must have a unique Task ID, must define the task name, payload, and execute idempotently.
 
 ## 3. Test Strategy Classification
 
@@ -50,10 +52,15 @@ Background task scheduling is handled via the `TaskQueuePort` defined in the app
 | Custom Class Obj | Non-serializable type | `TaskSerializationError` |
 | `None`           | Empty task identifier | `ValueError` |
 
-## 6. Observability & Telemetry Assertions
+## 6. Regression Anchors (For Bug Fixes Only)
+
+*None at present (greenfield configuration).*
+
+## 7. Observability & Telemetry Assertions
 
 - **Prometheus Metrics**:
   - Worker execution time: `isb_worker_task_duration_seconds` histogram.
   - Tasks count: `isb_worker_tasks_total` counter labeled by task name and status (`success`, `failed`).
 - **Sentry Logging**:
   - Task execution failures must be logged to Sentry with the task ID and payload metadata.
+
