@@ -3,21 +3,13 @@ services:
     build: .
     image: isb:latest
     container_name: isb_api
-    command: python -m isb.main
-    # When you add a web application framework (like FastAPI), uncomment the line below:
-    # command: uvicorn isb.presentation.api:app --host 0.0.0.0 --port 8000
+    command: uvicorn isb.presentation.api:app --host 0.0.0.0 --port 8000
     volumes:
       - ./data:/app/data
       - ./src:/app/src
     env_file: .env
-    # When exposing ports and healthchecks:
-    # ports:
-    #   - "8000:8000"
-    # healthcheck:
-    #   test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-    #   interval: 30s
-    #   timeout: 10s
-    #   retries: 3
+    # Note: Port 8000 is intentionally NOT mapped to the host to ensure all ingress
+    # traffic is routed exclusively through the Caddy reverse proxy.
     networks:
       - isb_network
 
@@ -30,14 +22,22 @@ services:
       - ./data:/app/data
       - ./src:/app/src
     env_file: .env
-    # To enable GPU capabilities on the worker container when needed:
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           count: 1
-    #           capabilities: [gpu]
+    networks:
+      - isb_network
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: isb_caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./infrastructure/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
     networks:
       - isb_network
 
@@ -47,3 +47,5 @@ networks:
 
 volumes:
   data:
+  caddy_data:
+  caddy_config:
