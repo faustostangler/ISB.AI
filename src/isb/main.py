@@ -1,4 +1,5 @@
 import sys
+
 from isb.config import settings
 
 
@@ -9,8 +10,8 @@ def main() -> None:
     to ports before starting worker execution loops.
     """
     print("--------------------------------------------------")
-    print(f"Booting Intelligent Second Brain (ISB.AI) Monolith")
-    print(f"Role: Worker/CLI")
+    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("Role: Worker/CLI")
     print(f"Environment: {settings.ENV}")
     print(f"Debug Mode: {settings.DEBUG}")
     print("--------------------------------------------------")

@@ -1,0 +1,33 @@
+{
+    "exit_code_by_key": {
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_1": 1,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_2": 1,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_3": 1,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_4": 1,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_5": 1,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_6": 1,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_7": 1,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_8": 1
+    },
+    "durations_by_key": {
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_1": 0.279932,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_2": 0.286368,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_3": 0.296274,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_4": 0.302134,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_5": 0.301069,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_6": 0.305027,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_7": 0.305855,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_8": 0.315442
+    },
+    "type_check_error_by_key": {},
+    "estimated_durations_by_key": {
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_1": 0.002763573000265751,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_2": 0.002763573000265751,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_3": 0.002763573000265751,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_4": 0.002763573000265751,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_5": 0.002763573000265751,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_6": 0.002763573000265751,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_7": 0.002763573000265751,
+        "isb.shared_kernel.ports.authorization.x\u01c1AuthorizationPort\u01c1enforce__mutmut_8": 0.002763573000265751
+    }
+}

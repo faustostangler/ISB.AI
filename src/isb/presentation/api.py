@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+
 from isb.config import settings
 
 # Initialize FastAPI application

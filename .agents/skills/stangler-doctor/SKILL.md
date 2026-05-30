@@ -3,7 +3,7 @@ name: stangler-doctor
 description: >
   Enforces the Doctor Stangler Architecture Method — the mandatory coding methodology for this workspace.
   Coordinates the multi-agent committee via its sub-skills located under the same .agents/ directory:
-  stangler-angiography, stangler-stereoscopy, stangler-refractometry, stangler-surgery, stangler-treatment, and stangler-laser.
+  stangler-angiography, stangler-stereoscopy, stangler-refractometry, stangler-surgery, stangler-treatment, stangler-laser, and stangler-fast.
   ADR-first: every coding task begins with an Architectural Decision Record. Specs are
   consequences of the ADR. Implementation plans are consequences of specs. No implementation
   plan without specs. No specs without ADR. Governs architecture (DDD, Hexagonal/Clean
@@ -33,7 +33,7 @@ The human acts as the **Lead Architect**; you act as the **High-Performance Impl
 
 ## The Ophthalmological Multi-Agent Committee
 
-To ensure absolute precision, the Doctor Stangler Method is executed by a committee of 6 specialized agents. When executing a task, route to the appropriate agent depending on the active phase/role:
+To ensure absolute precision, the Doctor Stangler Method is executed by a committee of 6 specialized agents. When executing a task, route to the appropriate agent depending on the active phase/role, or bypass to the fast-track coder when rapid prototyping is requested:
 
 | Phase / Role | Agent Role | Folder / Skill | Trigger/Focus |
 |--------------|------------|----------------|---------------|
@@ -43,6 +43,7 @@ To ensure absolute precision, the Doctor Stangler Method is executed by a commit
 | **Phase 3** | **Surgery** | `../stangler-surgery/SKILL.md` | Surgical TDD implementation, failing tests, minimum code to pass, refactoring |
 | **Phase 4** | **Treatment** | `../stangler-treatment/SKILL.md` | Post-op quality checks, mutation testing (`mutmut`), static types, linting |
 | **Grilling** | **Laser Griller** | `../stangler-laser/SKILL.md` | Reference-grounded grilling to challenge/stress-test architectural plans against 13 reference chapters |
+| **Fast Track** | **Fast Coder** | `../stangler-fast/SKILL.md` | Rapid prototyping, sandbox spikes, throwaway experiments, KISS tasks |
 
 
 ---
@@ -223,6 +224,17 @@ Before launching any development cycle, the agent must check the presence of the
   - **No Type Checker**: Degrade to manual verification of type annotations on all public functions/classes.
   - **No Linter**: Perform manual checking for styling and import hygiene.
 - Under no circumstances shall architectural standards (Hexagonal separation, Domain integrity, TDD, Clean code) be compromised due to missing tools.
+
+---
+
+### 1.4 The Fast Track Bypass (stangler-fast)
+
+When the user explicitly asks for rapid prototyping, one-off scripts, throwaway experiments, or when initiating an Architectural Spike (within the `sandbox/` directory), the strict Doctor Stangler Method ceremony (ADR, Specs, TDD, Hexagonal Architecture) is bypassed.
+
+In these scenarios:
+1. Route the execution to the **stangler-fast** skill.
+2. Adhere to the KISS rules defined in `../stangler-fast/SKILL.md`: single-file Python scripts, no abstractions, no dependency injection, stdlib-first, inline assertions, and immediate execution/output.
+3. This fast-track bypass is exclusively for non-production prototypes, sandboxed spikes, and exploratory work. If the prototype is eventually promoted to production, it must re-enter the standard Doctor Stangler cycle starting with Phase 1 (ADR).
 
 ---
 

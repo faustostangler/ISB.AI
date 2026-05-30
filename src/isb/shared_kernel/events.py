@@ -1,5 +1,6 @@
-from datetime import datetime, timezone
 import uuid
+from datetime import UTC, datetime
+
 from pydantic import BaseModel, Field
 
 
@@ -8,6 +9,6 @@ class DomainEvent(BaseModel):
 
     event_id: uuid.UUID = Field(default_factory=uuid.uuid4, description="Unique event identifier")
     occurred_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc),
+        default_factory=lambda: datetime.now(UTC),
         description="Timestamp indicating when the event occurred (UTC)",
     )
