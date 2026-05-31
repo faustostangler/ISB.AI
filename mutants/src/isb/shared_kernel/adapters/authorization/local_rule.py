@@ -71,8 +71,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -84,8 +91,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -102,8 +119,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return True
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -115,8 +139,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -133,8 +167,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -146,8 +187,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -164,8 +215,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -177,8 +235,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -195,8 +263,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -208,8 +283,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -226,8 +311,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -239,8 +331,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -257,8 +359,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -270,8 +379,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -288,8 +407,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -301,8 +427,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -319,8 +455,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -332,8 +475,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -350,8 +503,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -363,8 +523,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -381,8 +551,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -394,8 +571,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return False
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return False
 
@@ -412,8 +599,15 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
         """
         # 1. Subject validation: reject immediately if user_id is invalid or empty
         if not subject.user_id or not subject.user_id.strip():  # pragma: no mutate
-            logger.warning("Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s", action.value, resource.resource_id)  # pragma: no mutate
-            AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+            logger.warning(  # pragma: no mutate
+                "Access Denied: Subject has an empty or invalid user ID. Action=%s, ResourceId=%s",  # pragma: no mutate
+                action.value,  # pragma: no mutate
+                resource.resource_id,  # pragma: no mutate
+            )  # pragma: no mutate
+            AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+                resource_type=resource.resource_type,  # pragma: no mutate
+                action=action.value,  # pragma: no mutate
+            ).inc()  # pragma: no mutate
             return False
 
         # 2. Admin bypass check: check if user holds the administrator role
@@ -425,8 +619,18 @@ class LocalRuleAuthorizationAdapter(AuthorizationPort):
             return True
 
         # 4. Access Denied: emit audit warning log and increment prometheus metrics
-        logger.warning("Access Denied: Subject is not authorized. UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s", subject.user_id, action.value, resource.resource_id, resource.resource_type)  # pragma: no mutate
-        AUTH_DENIALS_COUNTER.labels(resource_type=resource.resource_type, action=action.value).inc()  # pragma: no mutate
+        logger.warning(  # pragma: no mutate
+            "Access Denied: Subject is not authorized. "  # pragma: no mutate
+            "UserId=%s, Action=%s, ResourceId=%s, ResourceType=%s",  # pragma: no mutate
+            subject.user_id,  # pragma: no mutate
+            action.value,  # pragma: no mutate
+            resource.resource_id,  # pragma: no mutate
+            resource.resource_type,  # pragma: no mutate
+        )  # pragma: no mutate
+        AUTH_DENIALS_COUNTER.labels(  # pragma: no mutate
+            resource_type=resource.resource_type,  # pragma: no mutate
+            action=action.value,  # pragma: no mutate
+        ).inc()  # pragma: no mutate
 
         return True
     

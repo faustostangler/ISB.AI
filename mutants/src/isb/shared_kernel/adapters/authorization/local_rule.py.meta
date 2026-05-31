@@ -13,17 +13,17 @@
         "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_11": 1
     },
     "durations_by_key": {
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_1": 0.327809,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_3": 0.320789,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_2": 0.3186,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_4": 0.314103,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_5": 0.2384,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_6": 0.223028,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_9": 0.20112,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_8": 0.192713,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_10": 0.179285,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_7": 0.208743,
-        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_11": 0.185363
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_2": 0.352446,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_4": 0.344397,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_3": 0.345187,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_1": 0.352374,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_5": 0.314083,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_6": 0.314055,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_7": 0.345182,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_9": 0.377887,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_10": 0.346952,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_8": 0.354595,
+        "isb.shared_kernel.adapters.authorization.local_rule.x\u01c1LocalRuleAuthorizationAdapter\u01c1authorize__mutmut_11": 0.376507
     },
     "type_check_error_by_key": {},
     "estimated_durations_by_key": {
