@@ -3,7 +3,9 @@
 
 import os
 from pathlib import Path
+
 import whisper
+
 
 def transcribe_audio_to_text(audio_path: str, model_name: str = "base") -> dict:
     """Transcribe an audio file to text using Whisper.
@@ -21,7 +23,7 @@ def transcribe_audio_to_text(audio_path: str, model_name: str = "base") -> dict:
 
     print(f"Loading Whisper model: {model_name}...")
     model = whisper.load_model(model_name)
-    
+
     print(f"Transcribing audio file: {audio_path}...")
     result = model.transcribe(str(path), fp16=False)
 
@@ -29,23 +31,23 @@ def transcribe_audio_to_text(audio_path: str, model_name: str = "base") -> dict:
 
 if __name__ == "__main__":
     # Quick CLI invocation test if run directly
-    import sys
     import glob
-    
+    import sys
+
     audio_path = sys.argv[1] if len(sys.argv) > 1 else None
     if not audio_path:
         print("No audio file path provided via command line.")
-        
+
         # Scan for existing audio files to make selection easy
         downloads_dir = Path(__file__).parent / "downloads"
         if not downloads_dir.exists():
             downloads_dir = Path("./downloads")
-            
+
         files = []
         if downloads_dir.exists():
             for ext in ("*.ogg", "*.mp3", "*.wav", "*.m4a"):
                 files.extend(glob.glob(str(downloads_dir / ext)))
-                
+
         if files:
             print(f"Available audio files in {downloads_dir}:")
             for i, f in enumerate(files):
@@ -65,11 +67,11 @@ if __name__ == "__main__":
             except (KeyboardInterrupt, EOFError):
                 print("\nExiting.")
                 sys.exit(0)
-                
+
     if not audio_path or not os.path.exists(audio_path):
         print(f"Error: Invalid or non-existent audio file: {audio_path}")
         sys.exit(1)
-        
+
     res = transcribe_audio_to_text(audio_path)
     print("\nTranscription Result:")
     print(res.get("text", ""))
