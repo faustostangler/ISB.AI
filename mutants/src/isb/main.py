@@ -1,21 +1,26 @@
+import logging
+import os
 import sys
-from collections.abc import Callable
-from typing import Annotated, ClassVar
 
 from isb.config import settings
+
+logger = logging.getLogger("isb.main")
+from typing import Annotated
+from typing import Callable
+from typing import ClassVar
 
 MutantDict = Annotated[dict[str, Callable], "Mutant"] # type: ignore
 
 
 def _mutmut_trampoline(orig, mutants, call_args, call_kwargs, self_arg = None): # type: ignore
     """Forward call to original or mutated function, depending on the environment"""
-    import os  # type: ignore
+    import os # type: ignore
     mutant_under_test = os.environ['MUTANT_UNDER_TEST'] # type: ignore
     if mutant_under_test == 'fail': # type: ignore
-        from mutmut.__main__ import MutmutProgrammaticFailException  # type: ignore
+        from mutmut.__main__ import MutmutProgrammaticFailException # type: ignore
         raise MutmutProgrammaticFailException('Failed programmatically')       # type: ignore
     elif mutant_under_test == 'stats': # type: ignore
-        from mutmut.__main__ import record_trampoline_hit  # type: ignore
+        from mutmut.__main__ import record_trampoline_hit # type: ignore
         record_trampoline_hit(orig.__module__ + '.' + orig.__name__) # type: ignore
         # (for class methods, orig is bound and thus does not need the explicit self argument)
         result = orig(*call_args, **call_kwargs) # type: ignore
@@ -45,6 +50,12 @@ def x_main__mutmut_orig() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -67,7 +78,13 @@ def x_main__mutmut_1() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
-    print(None)
+    uid = None
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
     print(f"Environment: {settings.ENV}")
@@ -89,7 +106,13 @@ def x_main__mutmut_2() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
-    print("XX--------------------------------------------------XX")
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print(None)
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
     print(f"Environment: {settings.ENV}")
@@ -111,8 +134,14 @@ def x_main__mutmut_3() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
-    print("--------------------------------------------------")
-    print(None)
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print("XX--------------------------------------------------XX")
+    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
     print(f"Environment: {settings.ENV}")
     print(f"Debug Mode: {settings.DEBUG}")
@@ -133,9 +162,15 @@ def x_main__mutmut_4() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
-    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print(None)
+    print("Role: Worker/CLI")
     print(f"Environment: {settings.ENV}")
     print(f"Debug Mode: {settings.DEBUG}")
     print("--------------------------------------------------")
@@ -155,10 +190,16 @@ def x_main__mutmut_5() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
-    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("XXBooting Intelligent Second Brain (ISB.AI) MonolithXX")
     print("Role: Worker/CLI")
-    print(None)
+    print(f"Environment: {settings.ENV}")
     print(f"Debug Mode: {settings.DEBUG}")
     print("--------------------------------------------------")
 
@@ -177,11 +218,17 @@ def x_main__mutmut_6() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
-    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("booting intelligent second brain (isb.ai) monolith")
     print("Role: Worker/CLI")
     print(f"Environment: {settings.ENV}")
-    print(None)
+    print(f"Debug Mode: {settings.DEBUG}")
     print("--------------------------------------------------")
 
     # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
@@ -199,12 +246,18 @@ def x_main__mutmut_7() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
-    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("BOOTING INTELLIGENT SECOND BRAIN (ISB.AI) MONOLITH")
     print("Role: Worker/CLI")
     print(f"Environment: {settings.ENV}")
     print(f"Debug Mode: {settings.DEBUG}")
-    print(None)
+    print("--------------------------------------------------")
 
     # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
     # For this skeleton, we perform validation checks and print readiness.
@@ -221,12 +274,18 @@ def x_main__mutmut_8() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
-    print("Role: Worker/CLI")
+    print(None)
     print(f"Environment: {settings.ENV}")
     print(f"Debug Mode: {settings.DEBUG}")
-    print("XX--------------------------------------------------XX")
+    print("--------------------------------------------------")
 
     # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
     # For this skeleton, we perform validation checks and print readiness.
@@ -243,6 +302,208 @@ def x_main__mutmut_9() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print("--------------------------------------------------")
+    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("XXRole: Worker/CLIXX")
+    print(f"Environment: {settings.ENV}")
+    print(f"Debug Mode: {settings.DEBUG}")
+    print("--------------------------------------------------")
+
+    # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
+    # For this skeleton, we perform validation checks and print readiness.
+    if not settings.DATABASE_URL or not settings.REDIS_URL:
+        print("CRITICAL: Storage connection URLs must be configured.", file=sys.stderr)
+        sys.exit(1)
+
+    print("Platform adapters successfully initialized. Worker is ready.")
+
+
+def x_main__mutmut_10() -> None:
+    """The Composition Root and entry point for CLI and background worker roles.
+
+    This function initializes infrastructure configurations and wires adapters
+    to ports before starting worker execution loops.
+    """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print("--------------------------------------------------")
+    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("role: worker/cli")
+    print(f"Environment: {settings.ENV}")
+    print(f"Debug Mode: {settings.DEBUG}")
+    print("--------------------------------------------------")
+
+    # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
+    # For this skeleton, we perform validation checks and print readiness.
+    if not settings.DATABASE_URL or not settings.REDIS_URL:
+        print("CRITICAL: Storage connection URLs must be configured.", file=sys.stderr)
+        sys.exit(1)
+
+    print("Platform adapters successfully initialized. Worker is ready.")
+
+
+def x_main__mutmut_11() -> None:
+    """The Composition Root and entry point for CLI and background worker roles.
+
+    This function initializes infrastructure configurations and wires adapters
+    to ports before starting worker execution loops.
+    """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print("--------------------------------------------------")
+    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("ROLE: WORKER/CLI")
+    print(f"Environment: {settings.ENV}")
+    print(f"Debug Mode: {settings.DEBUG}")
+    print("--------------------------------------------------")
+
+    # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
+    # For this skeleton, we perform validation checks and print readiness.
+    if not settings.DATABASE_URL or not settings.REDIS_URL:
+        print("CRITICAL: Storage connection URLs must be configured.", file=sys.stderr)
+        sys.exit(1)
+
+    print("Platform adapters successfully initialized. Worker is ready.")
+
+
+def x_main__mutmut_12() -> None:
+    """The Composition Root and entry point for CLI and background worker roles.
+
+    This function initializes infrastructure configurations and wires adapters
+    to ports before starting worker execution loops.
+    """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print("--------------------------------------------------")
+    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("Role: Worker/CLI")
+    print(None)
+    print(f"Debug Mode: {settings.DEBUG}")
+    print("--------------------------------------------------")
+
+    # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
+    # For this skeleton, we perform validation checks and print readiness.
+    if not settings.DATABASE_URL or not settings.REDIS_URL:
+        print("CRITICAL: Storage connection URLs must be configured.", file=sys.stderr)
+        sys.exit(1)
+
+    print("Platform adapters successfully initialized. Worker is ready.")
+
+
+def x_main__mutmut_13() -> None:
+    """The Composition Root and entry point for CLI and background worker roles.
+
+    This function initializes infrastructure configurations and wires adapters
+    to ports before starting worker execution loops.
+    """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print("--------------------------------------------------")
+    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("Role: Worker/CLI")
+    print(f"Environment: {settings.ENV}")
+    print(None)
+    print("--------------------------------------------------")
+
+    # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
+    # For this skeleton, we perform validation checks and print readiness.
+    if not settings.DATABASE_URL or not settings.REDIS_URL:
+        print("CRITICAL: Storage connection URLs must be configured.", file=sys.stderr)
+        sys.exit(1)
+
+    print("Platform adapters successfully initialized. Worker is ready.")
+
+
+def x_main__mutmut_14() -> None:
+    """The Composition Root and entry point for CLI and background worker roles.
+
+    This function initializes infrastructure configurations and wires adapters
+    to ports before starting worker execution loops.
+    """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print("--------------------------------------------------")
+    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("Role: Worker/CLI")
+    print(f"Environment: {settings.ENV}")
+    print(f"Debug Mode: {settings.DEBUG}")
+    print(None)
+
+    # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
+    # For this skeleton, we perform validation checks and print readiness.
+    if not settings.DATABASE_URL or not settings.REDIS_URL:
+        print("CRITICAL: Storage connection URLs must be configured.", file=sys.stderr)
+        sys.exit(1)
+
+    print("Platform adapters successfully initialized. Worker is ready.")
+
+
+def x_main__mutmut_15() -> None:
+    """The Composition Root and entry point for CLI and background worker roles.
+
+    This function initializes infrastructure configurations and wires adapters
+    to ports before starting worker execution loops.
+    """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
+    print("--------------------------------------------------")
+    print("Booting Intelligent Second Brain (ISB.AI) Monolith")
+    print("Role: Worker/CLI")
+    print(f"Environment: {settings.ENV}")
+    print(f"Debug Mode: {settings.DEBUG}")
+    print("XX--------------------------------------------------XX")
+
+    # In a fully realized Monolith, we would wire our adapters and resolve dependency graphs.
+    # For this skeleton, we perform validation checks and print readiness.
+    if not settings.DATABASE_URL or not settings.REDIS_URL:
+        print("CRITICAL: Storage connection URLs must be configured.", file=sys.stderr)
+        sys.exit(1)
+
+    print("Platform adapters successfully initialized. Worker is ready.")
+
+
+def x_main__mutmut_16() -> None:
+    """The Composition Root and entry point for CLI and background worker roles.
+
+    This function initializes infrastructure configurations and wires adapters
+    to ports before starting worker execution loops.
+    """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -259,12 +520,18 @@ def x_main__mutmut_9() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_10() -> None:
+def x_main__mutmut_17() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -281,12 +548,18 @@ def x_main__mutmut_10() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_11() -> None:
+def x_main__mutmut_18() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -303,12 +576,18 @@ def x_main__mutmut_11() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_12() -> None:
+def x_main__mutmut_19() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -325,12 +604,18 @@ def x_main__mutmut_12() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_13() -> None:
+def x_main__mutmut_20() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -347,12 +632,18 @@ def x_main__mutmut_13() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_14() -> None:
+def x_main__mutmut_21() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -369,12 +660,18 @@ def x_main__mutmut_14() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_15() -> None:
+def x_main__mutmut_22() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -391,12 +688,18 @@ def x_main__mutmut_15() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_16() -> None:
+def x_main__mutmut_23() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -413,12 +716,18 @@ def x_main__mutmut_16() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_17() -> None:
+def x_main__mutmut_24() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -435,12 +744,18 @@ def x_main__mutmut_17() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_18() -> None:
+def x_main__mutmut_25() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -457,12 +772,18 @@ def x_main__mutmut_18() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_19() -> None:
+def x_main__mutmut_26() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -479,12 +800,18 @@ def x_main__mutmut_19() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_20() -> None:
+def x_main__mutmut_27() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -501,12 +828,18 @@ def x_main__mutmut_20() -> None:
     print("Platform adapters successfully initialized. Worker is ready.")
 
 
-def x_main__mutmut_21() -> None:
+def x_main__mutmut_28() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -523,12 +856,18 @@ def x_main__mutmut_21() -> None:
     print(None)
 
 
-def x_main__mutmut_22() -> None:
+def x_main__mutmut_29() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -545,12 +884,18 @@ def x_main__mutmut_22() -> None:
     print("XXPlatform adapters successfully initialized. Worker is ready.XX")
 
 
-def x_main__mutmut_23() -> None:
+def x_main__mutmut_30() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -567,12 +912,18 @@ def x_main__mutmut_23() -> None:
     print("platform adapters successfully initialized. worker is ready.")
 
 
-def x_main__mutmut_24() -> None:
+def x_main__mutmut_31() -> None:
     """The Composition Root and entry point for CLI and background worker roles.
 
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")
@@ -589,30 +940,37 @@ def x_main__mutmut_24() -> None:
     print("PLATFORM ADAPTERS SUCCESSFULLY INITIALIZED. WORKER IS READY.")
 
 x_main__mutmut_mutants : ClassVar[MutantDict] = { # type: ignore
-'x_main__mutmut_1': x_main__mutmut_1,
-    'x_main__mutmut_2': x_main__mutmut_2,
-    'x_main__mutmut_3': x_main__mutmut_3,
-    'x_main__mutmut_4': x_main__mutmut_4,
-    'x_main__mutmut_5': x_main__mutmut_5,
-    'x_main__mutmut_6': x_main__mutmut_6,
-    'x_main__mutmut_7': x_main__mutmut_7,
-    'x_main__mutmut_8': x_main__mutmut_8,
-    'x_main__mutmut_9': x_main__mutmut_9,
-    'x_main__mutmut_10': x_main__mutmut_10,
-    'x_main__mutmut_11': x_main__mutmut_11,
-    'x_main__mutmut_12': x_main__mutmut_12,
-    'x_main__mutmut_13': x_main__mutmut_13,
-    'x_main__mutmut_14': x_main__mutmut_14,
-    'x_main__mutmut_15': x_main__mutmut_15,
-    'x_main__mutmut_16': x_main__mutmut_16,
-    'x_main__mutmut_17': x_main__mutmut_17,
-    'x_main__mutmut_18': x_main__mutmut_18,
-    'x_main__mutmut_19': x_main__mutmut_19,
-    'x_main__mutmut_20': x_main__mutmut_20,
-    'x_main__mutmut_21': x_main__mutmut_21,
-    'x_main__mutmut_22': x_main__mutmut_22,
-    'x_main__mutmut_23': x_main__mutmut_23,
-    'x_main__mutmut_24': x_main__mutmut_24
+'x_main__mutmut_1': x_main__mutmut_1, 
+    'x_main__mutmut_2': x_main__mutmut_2, 
+    'x_main__mutmut_3': x_main__mutmut_3, 
+    'x_main__mutmut_4': x_main__mutmut_4, 
+    'x_main__mutmut_5': x_main__mutmut_5, 
+    'x_main__mutmut_6': x_main__mutmut_6, 
+    'x_main__mutmut_7': x_main__mutmut_7, 
+    'x_main__mutmut_8': x_main__mutmut_8, 
+    'x_main__mutmut_9': x_main__mutmut_9, 
+    'x_main__mutmut_10': x_main__mutmut_10, 
+    'x_main__mutmut_11': x_main__mutmut_11, 
+    'x_main__mutmut_12': x_main__mutmut_12, 
+    'x_main__mutmut_13': x_main__mutmut_13, 
+    'x_main__mutmut_14': x_main__mutmut_14, 
+    'x_main__mutmut_15': x_main__mutmut_15, 
+    'x_main__mutmut_16': x_main__mutmut_16, 
+    'x_main__mutmut_17': x_main__mutmut_17, 
+    'x_main__mutmut_18': x_main__mutmut_18, 
+    'x_main__mutmut_19': x_main__mutmut_19, 
+    'x_main__mutmut_20': x_main__mutmut_20, 
+    'x_main__mutmut_21': x_main__mutmut_21, 
+    'x_main__mutmut_22': x_main__mutmut_22, 
+    'x_main__mutmut_23': x_main__mutmut_23, 
+    'x_main__mutmut_24': x_main__mutmut_24, 
+    'x_main__mutmut_25': x_main__mutmut_25, 
+    'x_main__mutmut_26': x_main__mutmut_26, 
+    'x_main__mutmut_27': x_main__mutmut_27, 
+    'x_main__mutmut_28': x_main__mutmut_28, 
+    'x_main__mutmut_29': x_main__mutmut_29, 
+    'x_main__mutmut_30': x_main__mutmut_30, 
+    'x_main__mutmut_31': x_main__mutmut_31
 }
 x_main__mutmut_orig.__name__ = 'x_main'
 

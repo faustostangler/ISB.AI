@@ -1,6 +1,10 @@
+import logging
+import os
 import sys
 
 from isb.config import settings
+
+logger = logging.getLogger("isb.main")
 
 
 def main() -> None:
@@ -9,6 +13,12 @@ def main() -> None:
     This function initializes infrastructure configurations and wires adapters
     to ports before starting worker execution loops.
     """
+    uid = os.getuid()
+    logger.info(  # pragma: no mutate
+        "Starting ISB.AI system component [role=worker] under UID %d",  # pragma: no mutate
+        uid,
+    )
+
     print("--------------------------------------------------")
     print("Booting Intelligent Second Brain (ISB.AI) Monolith")
     print("Role: Worker/CLI")

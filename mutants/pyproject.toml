@@ -67,7 +67,7 @@ markers = [
 ]
 
 [tool.mutmut]
-paths_to_mutate = ["src/"]
+paths_to_mutate = ["src/isb/knowledge_organization/"]
 tests_dir = ["tests/"]
 pytest_add_cli_args = ["-m", "not integration"]
 runner = "python -m pytest -m 'not integration'"

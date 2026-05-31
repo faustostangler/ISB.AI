@@ -1,0 +1,36 @@
+{
+    "exit_code_by_key": {
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_1": 1,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_2": 1,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_3": 1,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_4": 1,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_5": 1,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_6": 1,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_7": 1,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_8": 1,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_9": 1
+    },
+    "durations_by_key": {
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_1": 0.307658,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_2": 0.304787,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_3": 0.316118,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_4": 0.330761,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_5": 0.332491,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_6": 0.318775,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_8": 0.332036,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_9": 0.327509,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_7": 0.334201
+    },
+    "type_check_error_by_key": {},
+    "estimated_durations_by_key": {
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_1": 0.008392677003939752,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_2": 0.008392677003939752,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_3": 0.008392677003939752,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_4": 0.008392677003939752,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_5": 0.008392677003939752,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_6": 0.008392677003939752,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_7": 0.008392677003939752,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_8": 0.008392677003939752,
+        "isb.shared_kernel.ports.lock.x__extract_lock_prefix__mutmut_9": 0.008392677003939752
+    }
+}
