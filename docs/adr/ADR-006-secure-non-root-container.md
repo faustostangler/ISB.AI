@@ -39,6 +39,9 @@ Specific configurations to be implemented:
 ### Negative
 * **Local Permissions Management**: Host files mounted into the container might require group write permissions (`chmod -R g+w`) or user mapping depending on the developer's Linux host configuration.
 
+### Neutral
+* **Base Image Selection**: The choice of a Debian-slim base image rather than Alpine or Distroless maintains full compatibility with Python C-extensions and binaries required for ML/DL bindings, while slightly increasing image footprint.
+
 ## Alternatives Considered
 
 ### Alternative A: Keep default `root` user execution
@@ -51,15 +54,25 @@ Specific configurations to be implemented:
 * **Cons:** Extremely high friction to compile and run utilities like `ffmpeg`. Lack of shell impairs developer diagnostics and troubleshooting.
 * **Why rejected:** The complexity overhead of compiling custom system binaries overrides the marginal security benefit, violating the KISS principle.
 
+## Domain Model Impact
+
+This ADR affects **infrastructure-only** components. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (container security operates outside the application boundary)
+- **Adapter**: `Dockerfile` runtime stage, `docker-compose.yml` user mapping
+- **Bounded Context**: Platform (Infrastructure)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected
-- [x] Pod Security Standard compliance validated (`runAsNonRoot: true`)
-- [x] Dependency management uses `uv` in builder stage
-- [x] Multi-role single image configuration supported
+- [x] No framework dependencies in Domain layer
+- [x] Tests strategy defined (container smoke tests verify non-root execution via `whoami`)
+- [x] Observability plan included (Pod Security Standard compliance validated)
+- [x] LGPD/Security implications assessed (enforces least-privilege container execution)
 
 ## References
 
+- Related ADRs: [ADR-001: Caddy Ingress Reverse Proxy](ADR-001-caddy-ingress-reverse-proxy.md), [ADR-019: Kubernetes Deployment](ADR-019-kubernetes-deployment-and-self-healing.md)
 - Domain reference: `references/8-04 Containers, Docker, and Orchestration 1.md`
 - Code link: [Dockerfile](file:///home/stangler/gamer_d/Fausto%20Stangler/Documentos/Python/ISB.AI/Dockerfile)
 - Code link: [docker-compose.yml](file:///home/stangler/gamer_d/Fausto%20Stangler/Documentos/Python/ISB.AI/docker-compose.yml)

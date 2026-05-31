@@ -12,8 +12,12 @@ This specification defines the validation scenarios and interfaces for the `Auth
 ## 2. Bounded Context & Domain Invariants
 
 Authorization is handled through a port interface in the application layer.
-- **Invariant 1**: Any request to edit, delete, or purge a resource must verify that the requester is the owner of the resource or has explicit administrative delegation.
-- **Invariant 2**: Access must be denied by default (fail-safe principle) if no explicit matching rule is found.
+- **Value Object**: `Subject`
+  - Validation: Must contain a valid user ID (non-empty string) and a dictionary of claims.
+- **Value Object**: `Resource`
+  - Validation: Must contain a valid resource ID (non-empty string) and resource type.
+- **Value Object**: `Action`
+  - Validation: Must match one of the predefined CRUD/purge action types (read, write, delete, purge).
 
 ## 3. Test Strategy Classification
 
@@ -53,10 +57,15 @@ Authorization is handled through a port interface in the application layer.
 | `user-456`   | `user-123`        | `purge`| `PermissionDeniedError`      |
 | `None`       | `user-123`        | `read` | `PermissionDeniedError`      |
 
-## 6. Observability & Telemetry Assertions
+## 6. Regression Anchors (For Bug Fixes Only)
+
+*None at present (greenfield configuration).*
+
+## 7. Observability & Telemetry Assertions
 
 - **Audit Logging**:
   - Every denied authorization check must emit a security warning log containing the requester ID, resource ID, action, and timestamp.
   - **IMPORTANT**: To maintain LGPD/security compliance, logs must never contain PII or unredacted credentials.
 - **Prometheus Metrics**:
   - Access failures: `isb_auth_denials_total` counter labeled by resource type and action.
+

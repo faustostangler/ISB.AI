@@ -9,13 +9,12 @@
 
 This specification defines the validation criteria for the `IngestionPort` composite architecture. It guarantees that files, web pages, audio, video streams, and tabular files are cleanly parsed into semantic text/markdown.
 
-## 2. Invariants & Processing Rules
+## 2. Bounded Context & Domain Invariants
 
-* **Invariant 1**: The final ingested output must be returned as a clean `IngestedContent` entity containing raw markdown text, title, and file metadata.
-* **Invariant 2**: All media extraction (YouTube URLs or audio uploads) must output a transcoded, low-bitrate `.ogg` file before transcription is requested.
-* **Invariant 3**: Tabular documents (Excel spreadsheets and CSV files) must be converted into valid Markdown table formatting.
-* **Invariant 4**: Ingestion of image files must route the image to the out-of-process VLM endpoint and return a text description, never returning raw binary data.
-* **Invariant 5**: Unsupported media formats must fail-fast with a mapped exception (`UnsupportedMediaTypeException`).
+- **Value Object**: `MimeType`
+  - Validation: Must match a valid, supported media format string (e.g. `text/html`, `audio/ogg`, `image/png`, `application/pdf`).
+- **Entity**: `IngestedContent`
+  - Invariants: Must contain a valid Content ID, non-empty extracted text or markdown, and source metadata.
 
 ## 3. Test Strategy Classification
 
@@ -27,6 +26,9 @@ This specification defines the validation criteria for the `IngestionPort` compo
     - A dummy 3-row CSV file (checks Markdown table parsing).
     - A short wav file (checks ffmpeg command invocation and Whisper network integration).
     - A dummy PNG file (checks SGLang VLM API submission).
+- **LLM Evals (Non-Deterministic Gates)**:
+  - Scope: Verification of transcription accuracy and VLM description faithfulness.
+  - Rubric: Linked to [EVAL-011-multimodal-ingestion.md](./EVAL-011-multimodal-ingestion.md)
 
 ## 4. Acceptance Criteria (Scenarios)
 
@@ -69,7 +71,11 @@ This specification defines the validation criteria for the `IngestionPort` compo
 | Binary File | Corrupted/Empty | `IngestionSourceCorruptException` |
 | Ffmpeg Execution | Exit Code != 0 | `MediaProcessingException` |
 
-## 6. Observability & Telemetry Assertions
+## 6. Regression Anchors (For Bug Fixes Only)
+
+*None at present (greenfield configuration).*
+
+## 7. Observability & Telemetry Assertions
 
 * **Telemetry Metrics**:
   - Expose counter `isb_ingestion_attempts_total` labeled by format (`html`, `audio`, `table`, `image`).
@@ -77,3 +83,4 @@ This specification defines the validation criteria for the `IngestionPort` compo
 * **Audit Logs**:
   - Log start of transcoding tasks with source format and file size.
   - Log any system subprocess command invocations (`ffmpeg`, `yt-dlp`) at `DEBUG` level.
+

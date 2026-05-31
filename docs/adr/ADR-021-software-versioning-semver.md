@@ -57,6 +57,14 @@ Key implementation rules include:
 - **Cons**: No structural info, no dates, no version semantics.
 - **Why rejected**: Completely insufficient for managing distributed dependency layers and contract validation.
 
+## Domain Model Impact
+
+This decision affects only packaging, tagging, and repository release metadata. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (software versioning operates entirely at the repository and package metadata level)
+- **Adapter**: `pyproject.toml` version metadata, git release tags, automated changelogs
+- **Bounded Context**: Platform (Infrastructure)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected

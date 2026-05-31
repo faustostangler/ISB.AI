@@ -35,6 +35,9 @@ We will write a lightweight infrastructure adapter `LocalRuleAuthorizationAdapte
 - **Fetch Before Write**: Verifying resource ownership requires fetching the resource metadata from the database before performing the action, adding a minor query overhead.
 - **Context Translation**: Requires mapping request context (HTTP headers/JWT claims) and domain entities into generic Subject and Resource DTOs.
 
+### Neutral
+- **Role resolution**: User role metadata and permission policies are managed and decoded outside the domain model boundary (e.g., within Presentation API middleware).
+
 ## Alternatives Considered
 
 ### Alternative A: Role-Based Ingress (FastAPI Router dependencies)
@@ -47,6 +50,15 @@ We will write a lightweight infrastructure adapter `LocalRuleAuthorizationAdapte
 - **Cons:** Adds infrastructure complexity; requires running and managing an OPA container.
 - **Why rejected:** Overengineered for early monolith stages; our hexagonal abstraction allows us to defer this cost.
 
+## Domain Model Impact
+
+- **Port**: `AuthorizationPort` (application layer — user authentication/authorization checker)
+- **Adapters**:
+  - `LocalRuleAuthorizationAdapter` (infrastructure — in-process attribute check)
+  - `OpaAuthorizationAdapter` (infrastructure — remote Open Policy Agent sidecar)
+- **Bounded Context**: User Identity Context (Supporting Domain)
+- **Value Objects**: `Subject` (User ID/claims), `Resource` (Resource ID/type), `Action` (CRUD/purge enum)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected (AuthorizationPort in application, Rule evaluator in infrastructure)
@@ -58,3 +70,4 @@ We will write a lightweight infrastructure adapter `LocalRuleAuthorizationAdapte
 ## References
 
 - Domain reference: `references/3-02 Programming and Backend Development 1.md`, `references/37-DevOps, DDD, TDD, ADRs, Code.md`
+

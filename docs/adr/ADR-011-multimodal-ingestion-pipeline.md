@@ -50,6 +50,9 @@ Specific implementation details:
 ### Negative
 * **Resource Demand**: Running local Playwright browsers, media transcoder sub-processes, and local inference models concurrently can strain system limits (managed by strict worker concurrency controls and local INT4 model quantization).
 
+### Neutral
+* **Temporary File Storage**: Uploaded media and documents are temporarily stored in a secure local scratch directory during extraction, and purged immediately after processing.
+
 ## Alternatives Considered
 
 ### Option A: Web Scraping Only
@@ -77,6 +80,52 @@ Specific implementation details:
 * **Cons:** Higher local resource demand (mitigated by strict concurrency controls and INT4 model quantization).
 * **Why selected:** It combines local self-containment, domain cleanliness, high performance, and full multimodal capability.
 
+## Domain Model Impact
+
+- **Port**: `IngestionPort` (application layer — ingestion interface)
+- **Adapters**:
+  - `CompositeIngestionAdapter` (infrastructure — routes by MIME-type)
+  - `WhisperTranscriptionSidecarAdapter` (infrastructure — out-of-process CUDA audio transcription)
+  - `VlmDescriptionSidecarAdapter` (infrastructure — out-of-process CUDA image analysis)
+- **Bounded Context**: Ingestion Context (Core Domain)
+- **Value Objects**: `MimeType` (validated format string), `IngestedContent` (extracted text, metadata, and markdown structure)
+
+## Langfuse Ingestion Strategy
+
+- **Trace Taxonomy**:
+  - `trace_id`: Maps to the unique ingestion job ID.
+  - `session_id`: Maps to the user's workspace session.
+  - Tags: `mime_type` (e.g. `audio/ogg`, `image/png`), `source_type` (youtube/file/image/url).
+- **Span Hierarchy**:
+  - Parent trace: `ingest`
+  - Child spans:
+    - `download_media` (processes yt-dlp/ffmpeg download)
+    - `transcribe_audio` (Whisper inference span)
+    - `describe_image` (VLM description generation span)
+- **Prompt Version Tracking**:
+  - Prompt name: `vlm_image_description` (version `1.2.0`) loaded dynamically from Langfuse registry.
+- **Score Schema**:
+  - Automated evaluation scores are logged for transcription completeness and image description detail.
+
+## Cross-Context State Strategy
+
+### 7a. Boundary Violations Check
+No direct database links. The Ingestion Context does not share persistence layers with other Bounded Contexts.
+
+### 7b. Consistency Model
+- **Eventual Consistency (Async Events)**: Propagation of ingestion results to the Vector Storage context.
+- **Domain Event**: `IngestionCompletedEvent` (carrying `ContentId` and `IngestedContent` data).
+- **Broker**: Redis/Dramatiq event bus adapter.
+- **Delivery Guarantee**: At-least-once delivery.
+- **Idempotency Strategy**: The receiving Vector Storage Context checks if the `ContentId` already has active vector indices before processing.
+
+### 7c. Failure Modes & Compensation (Saga Pattern)
+- **Failure Mode**: Ingestion completes, but indexing fails.
+- **Compensation**: The consumer in the Vector Storage Context fires `IndexingFailedEvent` on failure, prompting the Ingestion Context to update the job state to `Failed` and notify the user interface.
+- **Saga Style**: Choreography-based flow between the two contexts.
+- **Max Delay (SLA)**: 2 minutes.
+- **Transactional Outbox**: Events are written to the `outbox` table in the database in the same transaction that registers the ingestion job state.
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected
@@ -88,3 +137,4 @@ Specific implementation details:
 
 - Domain reference: `references/25-10 Automation, and Integration 1.md`, `references/26-10 Automation, and Integration 2.md`
 - Layout reference: `references/project_layout.md`
+

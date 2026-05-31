@@ -32,6 +32,9 @@ We will orchestrate training workflows by structuring them as pure Python module
 * **No Pipeline DAG UI**: We do not get a graphical execution graph or specialized task-retry scheduler UI, although MLflow provides run metadata visualization.
 * **Manual Step Caching**: Any step-level caching (e.g., bypassing data loading if already done) must be handled programmatically using local caching abstractions rather than native orchestrator caching.
 
+### Neutral
+* **Telemetry Platform**: Pipeline runs are tracked in MLflow for machine learning metrics/artifacts, and Prometheus/Grafana for execution metrics.
+
 ## Alternatives Considered
 
 ### Alternative B: ZenML Pipelines
@@ -43,6 +46,32 @@ We will orchestrate training workflows by structuring them as pure Python module
 * **Pros**: Superior DAG visualization, pipeline-level scheduling, and run metrics.
 * **Cons**: Consumes substantial CPU and RAM; requires separate databases, ingress configurations, and maintenance.
 * **Why rejected**: Premature optimization that wastes system resources on our local RTX 2060 workstation.
+
+## Domain Model Impact
+
+- **Port**: `TaskQueuePort` (application layer — async pipeline trigger), `ModelRegistryPort` (application layer — model catalog interface)
+- **Adapters**:
+  - `RedisDramatiqAdapter` (infrastructure — queue adapter)
+  - `MlflowRegistryAdapter` (infrastructure — remote MLflow model registry)
+- **Bounded Context**: MLOps Context (Supporting Domain)
+- **Value Objects**: `ModelHyperparameters`, `PipelineRunId`, `ValidationMetrics`
+
+## Cross-Context State Strategy
+
+### 7a. Boundary Violations Check
+No pipeline execution block will read or write directly to another bounded context's database. Data inputs are retrieved via application ports, and outputs are published as events.
+
+### 7b. Consistency Model
+- **Eventual Consistency (Async Events)**: Used to propagate pipeline status events (e.g., `ModelTrainedEvent`) across context boundaries.
+- **Broker**: Redis/Dramatiq (in-process or Redis broker)
+- **Delivery Guarantee**: At-least-once delivery.
+- **Idempotency Strategy**: The receiving domain checks the registry and ignores duplicate events if the model version already exists.
+
+### 7c. Failure Modes & Compensation (Saga Pattern)
+- **Failure Mode**: Training succeeds but validation fails, or validation succeeds but registration fails.
+- **Compensation**: The Saga Orchestrator catches the error, registers a failure in Sentry, flags the run status as `Failed` in the metadata database, and triggers cleanup of temporary artifacts.
+- **Saga Style**: Orchestration (coordinated by a pipeline execution service).
+- **Max Delay (SLA)**: 5 minutes.
 
 ## Compliance
 
@@ -56,3 +85,4 @@ We will orchestrate training workflows by structuring them as pure Python module
 
 - Related ADRs: [ADR-002: Task Queue Abstraction via Hexagonal Port](./ADR-002-task-queue-abstraction.md), [ADR-023: Self-Hosted MLflow Server for Experiment Tracking and Model Registry](./ADR-023-self-hosted-mlflow-model-registry.md)
 - Domain reference: `references/22-08 MLOps and LLMOps 2.md` (Orchestration comparisons)
+

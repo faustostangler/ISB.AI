@@ -22,6 +22,10 @@ FROM base AS final
 
 WORKDIR /app
 
+# Create non-root user and group
+RUN groupadd -g 10001 isb && \
+    useradd -u 10001 -g isb -s /sbin/nologin -m isb
+
 # Copy the virtual environment from the builder stage
 COPY --from=builder /app/.venv /app/.venv
 
@@ -37,8 +41,13 @@ ENV PATH="/app/.venv/bin:$PATH"
 COPY src /app/src
 COPY README.md /app/README.md
 
+# Transfer directory ownership to isb user
+RUN chown -R isb:isb /app
+
 # Set environment variables
 ENV PYTHONPATH="/app/src"
+
+USER isb
 
 # Default command
 CMD ["python", "-m", "isb.main"]

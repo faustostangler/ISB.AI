@@ -44,6 +44,9 @@ Specific implementation details:
 * **Storage Cost**: Maintaining high-speed SSD PVCs with cached models incurs a modest, predictable monthly storage cost.
 * **Autoscaling Delay**: Setting up a physical GPU node in the cloud pool can take 1–3 minutes when scaling out from a zero-node pool. We will mitigate this by keeping a baseline pool minimum of 1 active cost-effective GPU node (e.g. NVIDIA L4).
 
+### Neutral
+* **Model Cache Update Frequency**: Checkpoints cached on the PVC are updated out-of-band only when new model versions are released, requiring no runtime application logic updates.
+
 ## Alternatives Considered
 
 ### Option B: Fully Managed Serverless GPU Inference Endpoints (Vertex AI / Runpod Serverless)
@@ -55,6 +58,14 @@ Specific implementation details:
 * **Pros:** Staggering compute capacity; full control over hardware (e.g. DGX Blackwell/Hopper systems).
 * **Cons:** Massive capital expenditure (CapEx), high operational footprint, and complex orchestration overhead.
 * **Why rejected:** Complete overkill for an inference-centric Intelligent Second Brain monolith, violating the KISS principle.
+
+## Domain Model Impact
+
+This decision affects only the deployment platform infrastructure. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (Kubernetes node pools and volumes operate entirely at the platform infrastructure level)
+- **Adapter**: Kubernetes PVC templates, GKE node pool configuration manifests
+- **Bounded Context**: Platform (Infrastructure)
 
 ## Compliance
 
@@ -68,3 +79,4 @@ Specific implementation details:
 
 - Related ADRs: [ADR-006: Secure Non-Root Container](ADR-006-secure-non-root-container.md), [ADR-009: Out-of-Process Model Serving](ADR-009-out-of-process-model-serving.md), [ADR-014: Unified Observability Architecture](ADR-014-observability-architecture.md)
 - Domain reference: `references/32-13 Cloud and Hardware for AI 1.md`, `references/34-13 Cloud and Hardware for AI 3.md`, `references/35-13 Cloud and Hardware for AI 4.md`
+

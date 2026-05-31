@@ -49,6 +49,9 @@ Specific details of this architecture:
 * **Networking Overhead**: Negligible latency penalty for inter-container communication on the same bridge network (mitigated by asynchronous HTTP connections).
 * **Docker Complexity**: Developers must have the NVIDIA Container Toolkit installed locally to bind GPU reservations to the container.
 
+### Neutral
+* **Quantization Parity**: Using AWQ/GPTQ 4-bit quantized weights locally and FP8/FP16 weights in production keeps the API inputs/outputs identical, with only minor variance in output quality.
+
 ## Alternatives Considered
 
 ### Alternative A: Native In-Process PyTorch execution
@@ -61,6 +64,14 @@ Specific details of this architecture:
 * **Cons:** Hardware lock-in; long compilation pipelines; breaks developer velocity.
 * **Why rejected:** Violates the KISS principle.
 
+## Domain Model Impact
+
+- **Port**: `ModelInferencePort` (application layer — model serving interface)
+- **Adapters**:
+  - `SglangInferenceAdapter` (infrastructure — OpenAI-compatible REST API client)
+- **Bounded Context**: Model Serving Context (Supporting Domain)
+- **Value Objects**: `Prompt`, `SystemPrompt`, `InferenceOutput`
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected
@@ -72,3 +83,4 @@ Specific details of this architecture:
 
 - Domain reference: `references/20-07 Framework Ecosystem and Model Tools 2.md`
 - Layout reference: `references/project_layout.md`
+

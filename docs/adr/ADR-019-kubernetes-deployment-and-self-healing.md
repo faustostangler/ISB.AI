@@ -49,6 +49,14 @@ We will configure our Kubernetes deployment manifests and Helm values with:
 - **Cons**: High engineering friction, service mesh complexity, sidecar overhead, and violates the KISS principle for modular monolithic deployments.
 - **Why rejected**: Introduces excessive cognitive load and infrastructure cost before the business scale demands it.
 
+## Domain Model Impact
+
+This decision affects only the deployment environment configuration. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (Kubernetes health checks and scheduling operate at the orchestration/container tier)
+- **Adapter**: `Deployment` resources, `StartupProbe`/`LivenessProbe`/`ReadinessProbe` configurations
+- **Bounded Context**: Platform (Infrastructure)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected (health checks implemented in Presentation layer)

@@ -9,12 +9,12 @@
 
 This specification defines the validation criteria for document representation using the `DocumentEmbeddingPort` with DroPE-calibrated model adapters. It ensures that embeddings are generated reliably, handle long contexts without memory overflows, and prevent NaN/Infinity calculations.
 
-## 2. Invariants & Model Constraints
+## 2. Bounded Context & Domain Invariants
 
-* **Invariant 1**: The returned embedding must be a list of float values of a fixed dimension matching the loaded model configuration (e.g., 768 or 1536).
-* **Invariant 2**: All embedding vector components must be valid finite floats (no `NaN` or `Infinity` values).
-* **Invariant 3**: Text inputs exceeding the safety threshold (default 32,768 tokens) must be safely truncated or rejected to protect against host system memory starvation.
-* **Invariant 4**: Ingestion of empty or whitespace-only inputs must raise a clean exception rather than invoking model execution.
+- **Value Object**: `DenseVector`
+  - Validation: Float array matching model dimensions (e.g. 768 or 1536). All values must be finite (no NaN or Inf).
+- **Value Object**: `DocumentContent`
+  - Validation: String, must be non-empty, clamped to 32,768 tokens.
 
 ## 3. Test Strategy Classification
 
@@ -23,6 +23,9 @@ This specification defines the validation criteria for document representation u
 * **Integration Tests (Adapter)**:
   - Scope: Test the `DroPEEmbeddingAdapter` with a live local model checkpoint.
   - Assertions: Verify output dimensions, zero-shot length execution (e.g., with 8,192 tokens), execution latency, and truncation logic.
+- **LLM Evals (Non-Deterministic Gates)**:
+  - Scope: Verification of embedding representation quality against reference datasets.
+  - Rubric: Linked to [EVAL-008-document-embedding.md](./EVAL-008-document-embedding.md)
 
 ## 4. Acceptance Criteria (Scenarios)
 
@@ -58,10 +61,15 @@ This specification defines the validation criteria for document representation u
 | Text size | > 32,768 tokens | Truncated to 32,768 tokens |
 | Model Weight Load | Missing checkpoint | `RuntimeError` on startup initialization |
 
-## 6. Observability & Telemetry Assertions
+## 6. Regression Anchors (For Bug Fixes Only)
+
+*None at present (greenfield configuration).*
+
+## 7. Observability & Telemetry Assertions
 
 * **Telemetry Metrics**:
   - Expose histogram `isb_embedding_latency_seconds` representing model forward pass times.
   - Expose histogram `isb_embedding_input_tokens` representing the distribution of token lengths processed.
 * **Audit Logs**:
   - Log any truncation events at `INFO` level, capturing the document ID and original word count.
+

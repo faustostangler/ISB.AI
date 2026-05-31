@@ -39,6 +39,9 @@ This ensures database connections are never held open during slow network crawls
 - **Lock Management Complexity**: Use cases must handle exceptions cleanly to ensure locks are always released (mitigated by using Python context managers).
 - **Lease Timeout Tuning**: We must carefully tune lock TTLs depending on the type of ingestion job to ensure locks do not expire before a scrape completes.
 
+### Neutral
+- **Storage state**: Locking states (acquired, expired, released) are entirely ephemeral and are not persisted in the relational database.
+
 ## Alternatives Considered
 
 ### Alternative A: No Locking (Idempotency only)
@@ -51,6 +54,15 @@ This ensures database connections are never held open during slow network crawls
 - **Cons:** Tying lock lifecycle to a database connection holds the connection open during slow network HTTP I/O, leading to connection starvation.
 - **Why rejected:** Tying network wait time to database connection lifecycles violates database tuning guidelines.
 
+## Domain Model Impact
+
+- **Port**: `LockPort` (application layer — distributed locking interface)
+- **Adapters**:
+  - `InMemLockAdapter` (infrastructure — local threading-based lock)
+  - `RedisLockAdapter` (infrastructure — Redis lease-based lock)
+- **Bounded Context**: Shared Kernel
+- **Value Objects**: `LockKey` (uniquely identifies the locked resource), `LockLeaseDuration` (specifies TTL)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected (LockPort in application, concrete adapters in infrastructure)
@@ -62,3 +74,4 @@ This ensures database connections are never held open during slow network crawls
 ## References
 
 - Domain reference: `references/7-03 Databases, Queues, and Cache 2.md`, `references/project_layout.md`
+

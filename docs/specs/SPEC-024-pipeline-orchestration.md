@@ -9,12 +9,14 @@
 
 This specification defines the validation criteria, components, and test requirements for our Python-based training pipeline orchestration. It ensures that data loading, preprocessing, model cross-validation, evaluation, and registry promotion execute reliably and log all operations correctly to our self-hosted MLflow Server.
 
-## 2. Invariants & Execution Rules
+## 2. Bounded Context & Domain Invariants
 
-*   **Invariant 1**: Pipelines must be structured as standard Python modules containing functions or classes that can be executed independently.
-*   **Invariant 2**: When executing a training run, the pipeline must wrap execution inside an active MLflow run, capturing parameters, metrics (`validation_macro_f1`, `validation_log_loss`), and the `git_commit_sha`.
-*   **Invariant 3**: Asynchronous execution via the `TaskQueuePort` must use serialization-safe data transfer objects (DTOs) for task payloads (e.g., model name, dataset reference path).
-*   **Invariant 4**: In the event of a training failure (e.g. out of memory on the GPU), the pipeline must cleanly terminate the active MLflow run, marking its status as `FAILED`.
+- **Value Object**: `ModelHyperparameters`
+  - Validation: Pydantic model validating training configuration bounds (learning rate, batch size, epochs).
+- **Value Object**: `PipelineRunId`
+  - Validation: UUID string identifying a unique pipeline execution.
+- **Value Object**: `ValidationMetrics`
+  - Validation: Dictionary mapping metric names (F1, LogLoss) to float values.
 
 ## 3. Component Architecture
 
@@ -80,7 +82,11 @@ src/mlops/
 | Dataset Empty | No data loaded | Raise `ValueError`, abort pipeline execution |
 | MLflow Server offline | Network timeout | Fallback to writing metrics to local disk cache, emit warning, complete training. |
 
-## 7. Observability & Telemetry Assertions
+## 8. Regression Anchors (For Bug Fixes Only)
+
+*None at present (greenfield configuration).*
+
+## 9. Observability & Telemetry Assertions
 
 *   **Telemetry Metrics**:
     *   Expose histogram `isb_training_pipeline_duration_seconds` tracking total execution times.
@@ -88,3 +94,4 @@ src/mlops/
 *   **Audit Logs**:
     *   Log step execution timings at `INFO` level.
     *   Log MLflow connection fallback alerts at `WARN` level.
+

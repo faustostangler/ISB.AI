@@ -45,6 +45,9 @@ Specific implementation details:
 * **Database Sample Management**: Requires setting up table archiving/retention policies on the PostgreSQL database to prevent inference log tables from growing unbounded.
 * **Background RAM Allocation**: The Dramatiq worker container must be sized with sufficient RAM limits to handle loading pandas DataFrames during drift analysis.
 
+### Neutral
+* **Report Formats**: The monitoring adapter generates both machine-readable JSON metrics for pipeline alerts and human-readable HTML dashboards for manual administrator review.
+
 ## Alternatives Considered
 
 ### Alternative A: Custom Mathematical Scripts (Prometheus decile tracking)
@@ -56,6 +59,14 @@ Specific implementation details:
 * **Pros**: Zero infrastructure maintenance, pre-built dashboards.
 * **Cons**: Transmits raw text metadata, confidence, and embeddings outside our secure network; requires internet connection.
 * **Why rejected**: Violates strict tenant privacy constraints and fails offline-first requirements.
+
+## Domain Model Impact
+
+- **Port**: `ModelDriftMonitoringPort` (application layer — abstract model monitoring and drift check interface)
+- **Adapters**:
+  - `EvidentlyDriftMonitoringAdapter` (infrastructure — scheduled pandas-based Evidently drift analyzer)
+- **Bounded Context**: MLOps Context (Supporting Domain)
+- **Value Objects**: `DriftReport` (validated JSON object containing drift metrics), `DriftThreshold` (configuration parameters)
 
 ## Compliance
 
@@ -69,3 +80,4 @@ Specific implementation details:
 
 - Related ADRs: [ADR-002: Task Queue Abstraction via Hexagonal Port](./ADR-002-task-queue-abstraction.md), [ADR-006: Secure Non-Root Container](./ADR-006-secure-non-root-container.md), [ADR-024: Training Pipeline Orchestration via Pure Python and Task Queue Integration](./ADR-024-pipeline-orchestration-dramatiq.md)
 - Domain reference: `references/22-08 MLOps and LLMOps 2.md`
+

@@ -9,12 +9,10 @@
 
 This specification defines the validation criteria for structured metadata extraction using Instructor. It ensures that Pydantic schema validation, self-correction retry behaviors, and multi-provider network failover operate reliably under load.
 
-## 2. Invariants & Extraction Rules
+## 2. Bounded Context & Domain Invariants
 
-* **Invariant 1**: Extracted objects must strictly validate against the requested Pydantic V2 schema.
-* **Invariant 2**: If the model output violates the schema, Instructor must catch the `ValidationError` and submit a self-correction request containing the error logs.
-* **Invariant 3**: If the self-correction loop fails to produce a valid schema within the max retry limit (default: 3), the system must raise `SchemaExtractionFailedException`.
-* **Invariant 4**: In the event of a local inference server crash or timeout, the adapter must transparently catch the error and execute the extraction using the configured cloud fallback provider.
+- **Value Object**: `DocumentMetadata`
+  - Validation: Pydantic model enforcing schema-level types and invariants (e.g. key entities must be non-empty list of strings, summary must contain text).
 
 ## 3. Test Strategy Classification
 
@@ -27,6 +25,9 @@ This specification defines the validation criteria for structured metadata extra
     - Recovery on second-pass after a validation failure (types/literals mismatches).
     - Local server connection timeouts triggering a call to the external cloud API.
     - Max retry exhaustion raising `SchemaExtractionFailedException`.
+- **LLM Evals (Non-Deterministic Gates)**:
+  - Scope: Verification of extraction accuracy, faithfulness, and completeness against golden datasets.
+  - Rubric: Linked to [EVAL-010-structured-llm-outputs.md](./EVAL-010-structured-llm-outputs.md)
 
 ## 4. Acceptance Criteria (Scenarios)
 
@@ -64,7 +65,11 @@ This specification defines the validation criteria for structured metadata extra
 | Fallback Config | Missing API keys | `ConfigurationError` on failover attempt |
 | Input Text | Empty | `ValueError` |
 
-## 6. Observability & Telemetry Assertions
+## 6. Regression Anchors (For Bug Fixes Only)
+
+*None at present (greenfield configuration).*
+
+## 7. Observability & Telemetry Assertions
 
 * **Telemetry Metrics**:
   - Expose counter `isb_extractor_retries_total` representing self-correction requests.
@@ -72,3 +77,4 @@ This specification defines the validation criteria for structured metadata extra
 * **Audit Logs**:
   - Log all validation errors at `WARN` level.
   - Log failover actions at `ERROR` level, indicating the triggering exception and local server status.
+

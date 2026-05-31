@@ -44,6 +44,9 @@ Specific implementation details:
 * **Instrumenting Overhead**: Requires configuring OTel telemetry propagation in our task queues and client wrappers.
 * **Telemetry Data Footprint**: Traces and metrics generate extra network traffic and disk storage. We will configure sensible sampling rates (e.g. 100% in development, 10% in production for successful traces, 100% for error traces) to manage costs.
 
+### Neutral
+* **Sampling Policy**: Tracing data uses a sample-rate threshold (100% in development, 10% in production for successful spans) to keep telemetry storage overhead predictable.
+
 ## Alternatives Considered
 
 ### Option B: Structured JSON Logs and Prometheus Metrics (No Distributed Tracing)
@@ -55,6 +58,14 @@ Specific implementation details:
 * **Pros:** Self-contained, does not require deploying Prometheus or Loki sidecars.
 * **Cons:** Completely violates 12-Factor App design. Writing logs to database tables creates write contention, database disk bloat, and resource starvation on our primary storage engine.
 * **Why rejected:** Poor scalability and violates container state isolation.
+
+## Domain Model Impact
+
+This decision represents a cross-cutting architectural concern. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (observability is a cross-cutting concern woven into adapters and Presentation middleware, requiring no custom application port interface)
+- **Adapter**: OpenTelemetry interceptor adapters, Sentry error boundary adapters, Prometheus metrics exporter routes
+- **Bounded Context**: Platform / Shared Kernel (cross-cutting observability)
 
 ## Compliance
 
@@ -68,3 +79,4 @@ Specific implementation details:
 
 - Related ADRs: [ADR-002: Task Queue Abstraction](ADR-002-task-queue-abstraction.md), [ADR-006: Secure Non-Root Container](ADR-006-secure-non-root-container.md), [ADR-009: Out-of-Process Model Serving](ADR-009-out-of-process-model-serving.md)
 - Domain reference: `references/29-12 Observability and Operation 1.md`, `references/30-12 Observability and Operation 2.md`, `references/31-12 Observability and Operation 3.md`
+

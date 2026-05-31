@@ -56,6 +56,10 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Cache
+.pytest_cache
+
+
 # Distribution / packaging
 .Python
 build/
@@ -144,3 +148,7 @@ cookies_*.txt
 # docs references
 /docs/references
 docs/references
+playground/downloader.py
+playground/main.py
+playground/transcriber.py
+playground/references_md/process_references.py

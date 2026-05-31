@@ -1,0 +1,25 @@
+{
+    # Global options
+    admin 0.0.0.0:2019
+}
+
+localhost {
+    # Reverse proxy to the FastAPI presentation API container
+    reverse_proxy api:8000
+
+    # Security headers implementation
+    header {
+        # Prevent framing of the site to mitigate clickjacking attacks
+        X-Frame-Options "DENY"
+        # Prevent MIME sniffing vulnerabilities
+        X-Content-Type-Options "nosniff"
+        # Enforce HTTPS connection (HSTS)
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    }
+
+    # Access logging in JSON format to stdout for observability integration (Grafana Loki)
+    log {
+        output stdout
+        format json
+    }
+}

@@ -44,6 +44,9 @@ Specifically:
 ### Negative
 - **Event Bus Coupling**: The reliability of cache consistency relies on the successful generation and publication of domain events by all modifying use cases.
 
+### Neutral
+- **Eviction Policy**: Ephemeral caching means that if Redis restarts, the application automatically falls back to fetching directly from PostgreSQL with zero data loss.
+
 ## Alternatives Considered
 
 ### Alternative A: Cache-Aside with Pure TTL Invalidation (Lazy Expiry)
@@ -55,6 +58,15 @@ Specifically:
 - **Pros:** Fully decoupled from application use cases.
 - **Cons:** Relies on database-layer triggers or external pipeline workers, which are difficult to test and maintain.
 - **Why rejected:** Overengineered and couples infrastructure keys directly to DB table columns instead of domain entities.
+
+## Domain Model Impact
+
+- **Port**: `CachePort` (application layer — caching interface)
+- **Adapters**:
+  - `InMemCacheAdapter` (infrastructure — dictionary-based cache)
+  - `RedisCacheAdapter` (infrastructure — Redis-based cache)
+- **Bounded Context**: Shared Kernel
+- **Value Objects**: `CacheKey` (structured cache key representation), `CacheTTL` (cache expiration duration)
 
 ## Compliance
 
@@ -68,3 +80,4 @@ Specifically:
 
 - Related ADRs: [ADR-005 Distributed Locking](ADR-005-distributed-locking-abstraction.md), [ADR-017 Database Migrations](ADR-017-zero-downtime-database-migrations.md)
 - Domain reference: `references/7-03 Databases, Queues, and Cache 2.md`
+

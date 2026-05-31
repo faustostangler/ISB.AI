@@ -51,6 +51,14 @@ Specifically:
 - **Cons:** Unnecessary complexity and runtime magic for a modular monolith.
 - **Why rejected:** Violates the KISS principle.
 
+## Domain Model Impact
+
+This decision affects only the application entrypoint bootstrapping and wiring. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (Composition Root is the orchestrator of all Ports and Adapters, sitting at the application entrypoint boundary)
+- **Adapter**: `src/main.py` (wired container / application runtime entrypoint)
+- **Bounded Context**: Platform / Shared Kernel (cross-cutting DI container)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected (Composition Root lives at the outermost entry boundary)

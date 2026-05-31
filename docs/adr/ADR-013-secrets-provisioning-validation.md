@@ -36,6 +36,9 @@ Specifically:
 ### Negative
 * **Encryption Key Management**: The private key to decrypt the secrets resides inside the Kubernetes cluster. If this key is lost, committed secrets must be re-encrypted. We will manage private keys securely via standard backup procedures.
 
+### Neutral
+* **Configuration Source**: All credentials are dynamically loaded from environment variables and can be overridden by a standard `.env` file during local development.
+
 ## Alternatives Considered
 
 ### Option A: Standard Kubernetes Secrets (Manual Provisioning)
@@ -47,6 +50,14 @@ Specifically:
 * **Pros:** Highly secure; supports dynamic short-lived credentials and rotate-on-read mechanisms.
 * **Cons:** Adds network calls during container startup. Requires importing SDK libraries, managing access tokens, handling network timeouts, and creating complex mocks for local development.
 * **Why rejected:** Violates the KISS principle and introduces unnecessary runtime dependencies.
+
+## Domain Model Impact
+
+This decision affects only the startup configuration process. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (configuration loading runs at startup in the Composition Root, not in the core domain)
+- **Adapter**: `PydanticBaseSettingsAdapter` (infrastructure — parses environment variables into typed configuration classes)
+- **Bounded Context**: Platform (Infrastructure)
 
 ## Compliance
 

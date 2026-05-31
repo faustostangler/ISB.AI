@@ -53,6 +53,14 @@ Specifically:
 - **Cons:** Adds operational tool complexity; triggers degrade database write throughput.
 - **Why rejected:** Exceeds the complexity threshold needed for our Modular Monolith layout (violates the KISS principle).
 
+## Domain Model Impact
+
+This decision affects only the persistence schema evolution. No Domain Entities or Value Objects are modified.
+
+- **Port**: N/A (database migrations are executed out-of-process via CLI during the deployment bootstrap)
+- **Adapter**: Alembic migration scripts (`alembic.ini`, `env.py`), PostgreSQL database schema
+- **Bounded Context**: Platform / Shared Kernel (cross-cutting persistence layer)
+
 ## Compliance
 
 - [x] Hexagonal Architecture layers respected
