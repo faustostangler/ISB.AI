@@ -148,7 +148,3 @@ cookies_*.txt
 # docs references
 /docs/references
 docs/references
-playground/downloader.py
-playground/main.py
-playground/transcriber.py
-playground/references_md/process_references.py
