@@ -17,78 +17,53 @@ import yt_dlp
 # Ensure we can import downloader and transcriber modules from the current directory
 sys.path.append(str(Path(__file__).parent))
 
-from downloader import get_youtube_audio_or_transcript
+from downloader import get_youtube_audio_or_transcript, extract_video_metadata
 from transcriber import transcribe_audio_to_text
+from llm_processor import process_transcript_to_obsidian
 
 # --- Configs ---
 PLAYLIST_FILE = Path(__file__).parent / "playlist.txt"
-CSV_FILE = Path(__file__).parent / "videos.csv"
-DEFAULT_OUTPUT_DIR = Path(__file__).parent / "downloads"
+CSV_FILE = Path(__file__).parent / "brain" / "wiki" / "log.md"
+DEFAULT_OUTPUT_DIR = Path(__file__).parent / "brain" / "raw"
 
-def load_synced_video_ids(csv_path: Path) -> set[str]:
-    """Load previously synced video IDs from the CSV file.
-    
-    Expects columns: channel_id, video_id, upload_date, synced_at
+def load_historical_metadata(log_path: Path) -> tuple[set[str], set[str]]:
+    """Load previously synced video IDs and channel IDs from the Markdown log file table.
+
+    Returns:
+        tuple[set[str], set[str]]: A tuple containing (synced_ids, synced_channels)
     """
     synced_ids = set()
-    if csv_path.exists():
+    synced_channels = set()
+    if log_path.exists():
         try:
-            with open(csv_path, encoding="utf-8") as f:
-                reader = csv.reader(f)
-                try:
-                    next(reader)  # Skip header
-                except StopIteration:
-                    pass
-                for row in reader:
-                    if len(row) > 1:
-                        # video_id is the second column (index 1)
-                        synced_ids.add(row[1])
+            with open(log_path, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if line.startswith("|") and not "---" in line and not "Channel ID" in line:
+                        parts = [p.strip() for p in line.split("|") if p.strip()]
+                        if len(parts) >= 2:
+                            synced_channels.add(parts[0])
+                            synced_ids.add(parts[1])
         except Exception as e:
-            print(f"Warning: Failed to load {csv_path}: {e}")
-    return synced_ids
+            print(f"Warning: Failed to load historical metadata from {log_path.name}: {e}")
+    return synced_ids, synced_channels
 
-def load_historical_channels(csv_path: Path) -> set[str]:
-    """Load previously synced channel IDs from the CSV file.
-    
-    Expects columns: channel_id, video_id, upload_date, synced_at
-    """
-    channel_ids = set()
-    if csv_path.exists():
-        try:
-            with open(csv_path, encoding="utf-8") as f:
-                reader = csv.reader(f)
-                try:
-                    next(reader)  # Skip header
-                except StopIteration:
-                    pass
-                for row in reader:
-                    if len(row) > 0 and row[0].strip():
-                        # channel_id is the first column (index 0)
-                        channel_ids.add(row[0].strip())
-        except Exception as e:
-            print(f"Warning: Failed to load channels from {csv_path}: {e}")
-    return channel_ids
-
-def record_synced_video(csv_path: Path, channel_id: str, video_id: str, upload_date: str) -> None:
-    """Record a successfully synced video ID in the CSV file using standard columns.
-    
-    Columns: channel_id, video_id, upload_date, synced_at
-    """
-    file_exists = csv_path.exists()
+def record_synced_video(log_path: Path, channel_id: str, video_id: str, upload_date: str, title: str = "Unknown Title") -> None:
+    """Record a successfully synced video in the Markdown log table."""
+    file_exists = log_path.exists()
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     try:
-        with open(csv_path, "a", encoding="utf-8", newline="") as f:
-            writer = csv.writer(f)
+        with open(log_path, "a", encoding="utf-8") as f:
             if not file_exists:
-                writer.writerow(["channel_id", "video_id", "upload_date", "synced_at"])
-            writer.writerow([
-                channel_id,
-                video_id,
-                upload_date,
-                datetime.now(UTC).isoformat()
-            ])
-        print(f"Recorded video {video_id} in {csv_path.name}")
+                f.write("# Ingestion Log\n\n")
+                f.write("| Channel ID | Video ID | Upload Date | Synced At | Title |\n")
+                f.write("| --- | --- | --- | --- | --- |\n")
+            synced_at = datetime.now(UTC).isoformat()
+            clean_title = title.replace("|", "\\|")
+            f.write(f"| {channel_id} | {video_id} | {upload_date} | {synced_at} | {clean_title} |\n")
+        print(f"Recorded video {video_id} in {log_path.name}")
     except Exception as e:
-        print(f"Error saving to CSV: {e}")
+        print(f"Error saving to Markdown log: {e}")
 
 def read_playlist_urls(file_path: Path) -> list[str]:
     """Read seed video URLs from a text file, skipping comments and blank lines."""
@@ -145,41 +120,43 @@ def get_full_upload_date(info: dict) -> str:
             pass
     return info.get("upload_date", "")
 
-def sync_single_video(url: str, output_dir: Path, model_name: str, keep_audio: bool) -> tuple[str | None, str | None, str, str]:
+def sync_single_video(url: str, output_dir: Path, model_name: str, keep_audio: bool, info: dict | None = None) -> dict:
     """Process a single video using the 3-tier fallback model (JSON3 -> SRV1 -> Whisper OGG).
     
-    Returns:
-        A tuple of (transcript_text, title, video_id, upload_date).
+    Returns a dict containing:
+        - text: the transcript text
+        - title: the video title
+        - video_id: the video ID
+        - upload_date: the upload date (ISO or YYYYMMDD)
+        - channel: the channel name
+        - channel_id: the channel ID
     """
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # 1. Fetch metadata first
-    ydl_opts = {
-        "quiet": True,
-        "no_warnings": True,
-        "js_runtimes": {"node": {}, "deno": {}, "bun": {}},
-        "remote_components": ["ejs:github"],
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=False)
-        video_id = info.get("id", "unknown_video")
-        title = info.get("title", "Unknown Title")
-        upload_date = get_full_upload_date(info)
+    if not info:
+        info = extract_video_metadata(url)
+    video_id = info.get("id", "unknown_video")
+    video_url = info.get("webpage_url", "unknown_url")
+    title = info.get("title", "Unknown Title")
+    upload_date = get_full_upload_date(info)
+    channel = info.get("channel", "Unknown Channel")
+    channel_id = info.get("channel_id", "unknown_channel")
 
-    print(f"\nProcessing video: {title} ({video_id})")
+    # print(f"\nProcessing video: {upload_date} {channel_id} {video_url} {title} ({video_id})")
     txt_path = output_dir / f"{video_id}.txt"
 
     # Check 3-tier downloader
-    transcript_text, ogg_path, _ = get_youtube_audio_or_transcript(url, output_dir=str(output_dir))
+    transcript_text, ogg_path, _ = get_youtube_audio_or_transcript(url, output_dir=str(output_dir), info=info)
 
     if transcript_text:
         text = transcript_text.strip()
-        print("Transcript retrieved directly from subtitles.")
+        # print("Transcript retrieved directly from subtitles.")
     else:
         # Fallback to Whisper
         if not ogg_path:
             # Re-fetch forcing download
-            _, ogg_path, _ = get_youtube_audio_or_transcript(url, output_dir=str(output_dir), force_audio=True)
+            _, ogg_path, _ = get_youtube_audio_or_transcript(url, output_dir=str(output_dir), force_audio=True, info=info)
 
         assert ogg_path and os.path.exists(ogg_path), f"Audio file not found: {ogg_path}"
         print(f"Transcribing audio file with Whisper (model: {model_name})...")
@@ -200,7 +177,14 @@ def sync_single_video(url: str, output_dir: Path, model_name: str, keep_audio: b
         f.write(text)
     print(f"Saved text to: {txt_path}")
 
-    return text, title, video_id, upload_date
+    return {
+        "text": text,
+        "title": title,
+        "video_id": video_id,
+        "upload_date": upload_date,
+        "channel": channel,
+        "channel_id": channel_id,
+    }
 
 def is_within_range(upload_date_str: str, days_limit: int) -> bool:
     """Check if the upload date string falls within the last X days.
@@ -221,52 +205,76 @@ def is_within_range(upload_date_str: str, days_limit: int) -> bool:
     except Exception:
         return False
 
+def process_and_compile_video(
+    url: str,
+    output_dir: Path,
+    csv_path: Path,
+    model_name: str,
+    keep_audio: bool,
+    llm_model: str,
+    ollama_url: str,
+    channel_id: str | None,
+    synced_ids: set[str],
+    info: dict | None = None
+) -> dict:
+    """Download, transcribe, log, and compile a YouTube video to Obsidian."""
+    res = sync_single_video(url, output_dir, model_name, keep_audio, info=info)
+    actual_channel_id = channel_id or res["channel_id"]
+
+    # Record to ingestion log
+    record_synced_video(csv_path, actual_channel_id, res["video_id"], res["upload_date"], title=res["title"])
+    synced_ids.add(res["video_id"])
+
+    # Compile to Obsidian Note inside wiki/
+    process_transcript_to_obsidian(
+        video_id=res["video_id"],
+        title=res["title"],
+        channel=res["channel"],
+        channel_id=actual_channel_id,
+        upload_date=res["upload_date"],
+        transcript_text=res["text"],
+        model=llm_model,
+        ollama_url=ollama_url,
+        output_dir=output_dir.parent / "wiki"
+    )
+    return res
+
 def sync_channels_and_seeds(
     days: int,
     output_dir: Path,
     model_name: str,
     keep_audio: bool,
     playlist_path: Path,
-    csv_path: Path
+    csv_path: Path,
+    llm_model: str = "gemma4:e2b",
+    ollama_url: str = "http://localhost:11434"
 ) -> None:
     """Core synchronization execution flow."""
     # 1. Load synced video IDs and historical channels
-    synced_ids = load_synced_video_ids(csv_path)
-    historical_channels = load_historical_channels(csv_path)
-    print(f"Loaded {len(synced_ids)} synced video IDs and {len(historical_channels)} historical channels.")
+    synced_ids, synced_channels = load_historical_metadata(csv_path)
+    print(f"Loaded {len(synced_ids)} synced video IDs and {len(synced_channels)} synced channel IDs.")
 
     # 2. Read seed URLs from playlist.txt
     urls = read_playlist_urls(playlist_path)
     print(f"Found {len(urls)} seed URLs in {playlist_path.name}.")
 
-    channels_to_scan = set(historical_channels)
+    channels_to_scan = set(synced_channels)
 
     # 3. Process seed URLs and add their channels to our list
     for url in urls:
         print(f"\nAnalyzing seed URL: {url}")
-        ydl_opts = {
-            "quiet": True,
-            "no_warnings": True,
-            "js_runtimes": {"node": {}, "deno": {}, "bun": {}},
-            "remote_components": ["ejs:github"],
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            try:
-                info = ydl.extract_info(url, download=False)
-            except Exception as e:
-                print(f"Error fetching metadata for seed URL {url}: {e}")
-                continue
-
+        try:
+            info = extract_video_metadata(url)
             video_id = info.get("id")
+            video_url = info.get("webpage_url")
             title = info.get("title")
             channel_id = info.get("channel_id")
-            channel = info.get("channel", "Unknown Channel")
             upload_date = get_full_upload_date(info)
+        except Exception as e:
+            print(f"Error fetching metadata for seed URL {url}: {e}")
+            continue
 
-        print(f"Seed Video ID: {video_id}")
-        print(f"Title: {title}")
-        print(f"Channel: {channel} ({channel_id})")
-        print(f"Upload Date: {upload_date}")
+        print(f"{upload_date} | {channel_id} {video_url} | {title}")
 
         if channel_id:
             channels_to_scan.add(channel_id)
@@ -274,42 +282,150 @@ def sync_channels_and_seeds(
         # Process the seed video itself if it is within range and not yet synced
         if is_within_range(upload_date, days):
             if video_id not in synced_ids:
-                print("-> Seed video is within range and not synced. Syncing now...")
+                # print("-> Seed video is within range and not synced. Syncing now...")
                 try:
-                    _, _, vid, udate = sync_single_video(url, output_dir, model_name, keep_audio)
-                    record_synced_video(csv_path, channel_id, vid, udate)
-                    synced_ids.add(vid)
+                    process_and_compile_video(
+                        url=url,
+                        output_dir=output_dir,
+                        csv_path=csv_path,
+                        model_name=model_name,
+                        keep_audio=keep_audio,
+                        llm_model=llm_model,
+                        ollama_url=ollama_url,
+                        channel_id=channel_id,
+                        synced_ids=synced_ids,
+                        info=info
+                    )
                 except Exception as e:
                     print(f"Error syncing seed video {video_id}: {e}")
             else:
-                print("-> Seed video is already synced.")
+                pass
+                # print("-> Seed video is already synced.")
         else:
             print("-> Seed video falls outside the date range.")
 
     # 4. Scan all unique channels (both seed channels and historical ones)
     print(f"\nScanning total of {len(channels_to_scan)} channels for new uploads...")
-    safe_limit = max(50, days * 10)
+    safe_limit = max(50, days * 30)
     for chan_id in channels_to_scan:
         recent_entries = fetch_channel_recent_videos(chan_id, limit=safe_limit)
         print(f"Found {len(recent_entries)} recent uploads on the channel.")
 
         for entry in recent_entries:
             entry_id = entry.get("id")
+            entry_url = entry.get("url")
             entry_title = entry.get("title", "Unknown Title")
             entry_date = get_full_upload_date(entry)
 
             if is_within_range(entry_date, days):
                 if entry_id not in synced_ids:
-                    print(f"  + New video found: {entry_title} ({entry_id}) - Date: {entry_date}")
-                    video_url = f"https://www.youtube.com/watch?v={entry_id}"
+                    print(f"  + {entry_date} | {entry_url} | {entry_title}")
                     try:
-                        _, _, vid, udate = sync_single_video(video_url, output_dir, model_name, keep_audio)
-                        record_synced_video(csv_path, chan_id, vid, udate)
-                        synced_ids.add(vid)
+                        process_and_compile_video(
+                            url=entry_url,
+                            output_dir=output_dir,
+                            csv_path=csv_path,
+                            model_name=model_name,
+                            keep_audio=keep_audio,
+                            llm_model=llm_model,
+                            ollama_url=ollama_url,
+                            channel_id=chan_id,
+                            synced_ids=synced_ids
+                        )
                     except Exception as e:
                         print(f"  Error syncing video {entry_id}: {e}")
                 else:
-                    print(f"  - Video already synced: {entry_title} ({entry_id})")
+                    pass
+                    # print(f"  - Video already synced: {entry_title} ({entry_id})")
+
+def bulk_compile_historical_transcripts(
+    csv_path: Path,
+    output_dir: Path,
+    llm_model: str = "gemma4:e2b",
+    ollama_url: str = "http://localhost:11434"
+) -> None:
+    """Scan the Markdown log file and compile any unprocessed video transcripts into Obsidian notes."""
+    if not csv_path.exists():
+        print(f"No historical sync log found at {csv_path}. Nothing to compile.")
+        return
+
+    print(f"Scanning {csv_path.name} for transcripts to compile...")
+
+    wiki_dir = output_dir.parent / "wiki"
+    wiki_dir.mkdir(parents=True, exist_ok=True)
+    sources_dir = wiki_dir / "sources"
+    sources_dir.mkdir(parents=True, exist_ok=True)
+
+    rows = []
+    try:
+        with open(csv_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line.startswith("|") and not "---" in line and not "Channel ID" in line:
+                    parts = [p.strip() for p in line.split("|") if p.strip()]
+                    if len(parts) >= 4:
+                        title = parts[4] if len(parts) >= 5 else "Unknown Title"
+                        rows.append((parts[0], parts[1], parts[2], title))
+    except Exception as e:
+        print(f"Error reading log table: {e}")
+        return
+
+    print(f"Found {len(rows)} entries in sync log.")
+    compiled_count = 0
+
+    for channel_id, video_id, upload_date, title in rows:
+        source_note_path = sources_dir / f"{video_id}.md"
+        if source_note_path.exists():
+            continue
+
+        txt_path = output_dir / f"{video_id}.txt"
+        if not txt_path.exists():
+            # Alternative check old downloads
+            txt_path_alt = output_dir.parent.parent / "downloads" / f"{video_id}.txt"
+            if txt_path_alt.exists():
+                txt_path = txt_path_alt
+            else:
+                print(f"Warning: Transcript text file {txt_path} not found. Skipping.")
+                continue
+
+        try:
+            with open(txt_path, encoding="utf-8") as f:
+                transcript_text = f.read().strip()
+        except Exception as e:
+            print(f"Error reading transcript file {txt_path}: {e}")
+            continue
+
+        if not transcript_text:
+            print(f"Warning: Transcript {txt_path} is empty. Skipping.")
+            continue
+
+        if title == "Unknown Title" or not title:
+            print(f"Fetching title for video {video_id} to compile note...")
+            channel = "Unknown Channel"
+            try:
+                info = extract_video_metadata(f"https://www.youtube.com/watch?v={video_id}")
+                title = info.get("title", "Unknown Title")
+                channel = info.get("channel", "Unknown Channel")
+            except Exception as e:
+                print(f"Warning: Could not fetch metadata for {video_id}: {e}. Using placeholders.")
+        else:
+            channel = "Unknown Channel"
+
+        success = process_transcript_to_obsidian(
+            video_id=video_id,
+            title=title,
+            channel=channel,
+            channel_id=channel_id,
+            upload_date=upload_date,
+            transcript_text=transcript_text,
+            model=llm_model,
+            ollama_url=ollama_url,
+            output_dir=wiki_dir
+        )
+        if success:
+            compiled_count += 1
+
+    print(f"\nBulk compilation finished. Successfully compiled {compiled_count} new notes.")
 
 def main() -> None:
     parser = argparse.ArgumentParser(
@@ -350,17 +466,46 @@ def main() -> None:
         default=str(CSV_FILE),
         help="Path to CSV persistence log."
     )
+    parser.add_argument(
+        "--ollama-model",
+        type=str,
+        default="gemma4:e2b",
+        help="Ollama model to use for Obsidian note generation (default: 'gemma4:e2b')."
+    )
+    parser.add_argument(
+        "--ollama-url",
+        type=str,
+        default="http://localhost:11434",
+        help="Ollama API URL (default: 'http://localhost:11434')."
+    )
+    parser.add_argument(
+        "--compile-only",
+        action="store_true",
+        help="Run bulk compilation on all historical synced transcripts without downloading new videos."
+    )
 
     args = parser.parse_args()
+    
+    output_path = Path(args.output_dir)
 
-    sync_channels_and_seeds(
-        days=args.days,
-        output_dir=Path(args.output_dir),
-        model_name=args.model,
-        keep_audio=args.keep_audio,
-        playlist_path=Path(args.playlist),
-        csv_path=Path(args.csv)
-    )
+    if args.compile_only:
+        bulk_compile_historical_transcripts(
+            csv_path=Path(args.csv),
+            output_dir=output_path,
+            llm_model=args.ollama_model,
+            ollama_url=args.ollama_url
+        )
+    else:
+        sync_channels_and_seeds(
+            days=args.days,
+            output_dir=output_path,
+            model_name=args.model,
+            keep_audio=args.keep_audio,
+            playlist_path=Path(args.playlist),
+            csv_path=Path(args.csv),
+            llm_model=args.ollama_model,
+            ollama_url=args.ollama_url
+        )
 
 if __name__ == "__main__":
     try:

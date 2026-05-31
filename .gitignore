@@ -148,3 +148,4 @@ cookies_*.txt
 # docs references
 /docs/references
 docs/references
+playground/brain/*

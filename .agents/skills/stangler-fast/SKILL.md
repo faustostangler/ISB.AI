@@ -33,7 +33,8 @@ Think of it like a whiteboard — you sketch fast, you erase, you sketch again. 
 6. **Validate with asserts.** Sprinkle `assert` statements to prove the code works. These are inline sanity checks, not a test suite. They run as part of the script.
 7. **Doctest when it fits.** If a function's behavior is best shown by example, use a doctest. Don't force it — only where it adds clarity.
 8. **Run it immediately.** After writing the script, execute it. The user should see output within seconds of asking.
-9. **Print results.** The script should produce visible output — print statements, formatted tables, summary lines. The user should be able to look at the terminal and know if it worked.
+9. **Print results.** The script should produce visible output — print statements, formatted tables, one-line summary print log. The user should be able to look at the terminal and know if it worked.
+10. **High cohesion, low coupling.** Even in a single-file prototype, keep related logic grouped together and distinct concerns separated. Avoid relying on global state or intertwining unrelated operations. Functions should do one thing well (high cohesion) and communicate via clear inputs and outputs (low coupling), making the prototype easy to refactor or promote to proper architecture later.
 
 ## Workflow
 

@@ -4,6 +4,7 @@
 import html
 import json
 import re
+import sys
 import urllib.request
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -155,7 +156,18 @@ def fetch_and_parse_srv1(url: str, punctuation_limit: int = 5) -> str:
 
     return "\n\n".join(p for p in paragraphs if p.strip())
 
-def get_youtube_audio_or_transcript(url: str, output_dir: str = ".", force_audio: bool = False) -> tuple[str | None, str | None, str]:
+def extract_video_metadata(url: str) -> dict:
+    """Extract and return video metadata using yt-dlp."""
+    ydl_opts_meta = {
+        'quiet': True,
+        'no_warnings': True,
+        "js_runtimes": {"node": {}, "deno": {}, "bun": {}},
+        "remote_components": ["ejs:github"],
+    }
+    with yt_dlp.YoutubeDL(ydl_opts_meta) as ydl:
+        return ydl.extract_info(url, download=False)
+
+def get_youtube_audio_or_transcript(url: str, output_dir: str = ".", force_audio: bool = False, info: dict | None = None) -> tuple[str | None, str | None, str]:
     """Retrieve the transcript directly from YouTube subtitles if available (json3 paragraphs -> srv1 raw text).
     Otherwise, download the audio and convert it to OGG format for Whisper.
 
@@ -163,6 +175,7 @@ def get_youtube_audio_or_transcript(url: str, output_dir: str = ".", force_audio
         url: The YouTube video URL.
         output_dir: The directory where output files will be saved.
         force_audio: If True, skips subtitle checks and forces audio downloading.
+        info: Optional pre-extracted yt-dlp metadata dictionary.
 
     Returns:
         A tuple of (transcript_text, ogg_file_path, video_id).
@@ -171,18 +184,11 @@ def get_youtube_audio_or_transcript(url: str, output_dir: str = ".", force_audio
     out_path = Path(output_dir)
     out_path.mkdir(parents=True, exist_ok=True)
 
-    ydl_opts_meta = {
-        'quiet': True,
-        'no_warnings': True,
-        "js_runtimes": {"node": {}, "deno": {}, "bun": {}},
-        "remote_components": ["ejs:github"],
-    }
-
-    print(f"Extracting metadata for: {url}")
-    with yt_dlp.YoutubeDL(ydl_opts_meta) as ydl:
-        info = ydl.extract_info(url, download=False)
-        video_id = info.get("id", "unknown_video")
-        title = info.get("title", "Unknown Title")
+    if not info:
+        print(f"Extracting metadata for: {url}")
+        info = extract_video_metadata(url)
+    video_id = info.get("id", "unknown_video")
+    title = info.get("title", "Unknown Title")
 
     # Try to get subtitles if not forced to download audio
     if not force_audio:
@@ -243,7 +249,6 @@ def get_youtube_audio_or_transcript(url: str, output_dir: str = ".", force_audio
 
 if __name__ == "__main__":
     # Quick CLI invocation test if run directly
-    import sys
     url = sys.argv[1] if len(sys.argv) > 1 else None
     if not url:
         print("No YouTube URL provided via command line.")

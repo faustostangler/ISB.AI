@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """Audio transcriber script using OpenAI Whisper."""
 
+import glob
 import os
+import sys
 from pathlib import Path
 
 import whisper
@@ -29,11 +31,9 @@ def transcribe_audio_to_text(audio_path: str, model_name: str = "base") -> dict:
 
     return result
 
+
 if __name__ == "__main__":
     # Quick CLI invocation test if run directly
-    import glob
-    import sys
-
     audio_path = sys.argv[1] if len(sys.argv) > 1 else None
     if not audio_path:
         print("No audio file path provided via command line.")

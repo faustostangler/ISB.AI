@@ -11,72 +11,47 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent))
 
 import sync_channels
+from sync_channels import sync_single_video
 from downloader import get_youtube_audio_or_transcript
 from transcriber import transcribe_audio_to_text
+from llm_processor import process_transcript_to_obsidian
 
 
-def run_single_video(url: str, output_dir: str, model_name: str, keep_audio: bool) -> None:
+def run_single_video(
+    url: str,
+    output_dir: str,
+    model_name: str,
+    keep_audio: bool,
+    llm_model: str = "gemma4:e2b",
+    ollama_url: str = "http://localhost:11434"
+) -> None:
     """Run the complete pipeline for a single video: fetch subtitles or fallback to Whisper."""
     start_time = time.time()
 
-    # 1. Try to fetch subtitles or download audio
     print("\n=== STEP 1: RETRIEVING SUBTITLES OR DOWNLOADING AUDIO ===")
-    download_start = time.time()
-    transcript_text, ogg_path, video_id = get_youtube_audio_or_transcript(url, output_dir=output_dir)
-    download_duration = time.time() - download_start
+    res = sync_single_video(url, Path(output_dir), model_name, keep_audio)
 
-    # Define text file path using the video ID
-    txt_path = Path(output_dir) / f"{video_id}.txt"
-
-    if transcript_text:
-        # We got the subtitles directly!
-        text = transcript_text.strip()
-        print(f"Skipping Step 2: Subtitles fetched directly in {download_duration:.2f} seconds.")
-    else:
-        # We need to transcribe the downloaded OGG file
-        if not ogg_path:
-            print("Transcript text is empty or skipped, but no audio file is downloaded. Downloading audio stream now...")
-            _, ogg_path, _ = get_youtube_audio_or_transcript(url, output_dir=output_dir, force_audio=True)
-
-        assert ogg_path and os.path.exists(ogg_path), f"Download verification failed. File not found: {ogg_path}"
-        file_size_mb = os.path.getsize(ogg_path) / (1024 * 1024)
-        print(f"Downloaded audio to {ogg_path} ({file_size_mb:.2f} MB) in {download_duration:.2f} seconds.")
-
-        # 2. Transcribe
-        print("\n=== STEP 2: TRANSCRIBING AUDIO TO TEXT VIA WHISPER ===")
-        transcribe_start = time.time()
-        result = transcribe_audio_to_text(ogg_path, model_name=model_name)
-        transcribe_duration = time.time() - transcribe_start
-
-        text = result.get("text", "").strip()
-        print(f"Transcribed audio in {transcribe_duration:.2f} seconds.")
-
-        # Clean up if requested
-        if not keep_audio:
-            print(f"\nCleaning up temporary audio file: {ogg_path}")
-            try:
-                os.remove(ogg_path)
-                print("Audio file deleted successfully.")
-            except Exception as e:
-                print(f"Warning: Failed to delete audio file: {e}")
-
-    # Inline assertion to verify we have non-empty text before writing
-    assert len(text) > 0, "Transcription/Subtitle text is empty."
-
-    # 3. Output results
-    print("\n================ FINAL TEXT RESULT ================")
-    print(text[:1000] + "\n...")
-    print("====================================================")
-
-    # Save transcription text to a file
-    with open(txt_path, "w", encoding="utf-8") as f:
-        f.write(text)
-    print(f"Saved text to: {txt_path}")
+    # 4. Compile to Obsidian Note via LLM
+    print("\n=== STEP 2: COMPILING OBSIDIAN NOTE VIA OLLAMA LLM ===")
+    notes_dir = Path(output_dir).parent / "wiki"
+    process_transcript_to_obsidian(
+        video_id=res["video_id"],
+        title=res["title"],
+        channel=res["channel"],
+        channel_id=res["channel_id"],
+        upload_date=res["upload_date"],
+        transcript_text=res["text"],
+        model=llm_model,
+        ollama_url=ollama_url,
+        output_dir=notes_dir
+    )
 
     total_duration = time.time() - start_time
     print(f"\nPipeline finished in {total_duration:.2f} seconds.")
 
-def main() -> None:
+
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description="Download and transcribe YouTube videos or synchronize channels from playlist.txt."
     )
@@ -122,12 +97,42 @@ def main() -> None:
         default=str(sync_channels.CSV_FILE),
         help="Path to CSV persistence log."
     )
+    parser.add_argument(
+        "--ollama-model",
+        type=str,
+        default="gemma4:e2b",
+        help="Ollama model to use for Obsidian note generation (default: 'gemma4:e2b')."
+    )
+    parser.add_argument(
+        "--ollama-url",
+        type=str,
+        default="http://localhost:11434",
+        help="Ollama API URL (default: 'http://localhost:11434')."
+    )
+    parser.add_argument(
+        "--compile-only",
+        action="store_true",
+        help="Run bulk compilation on all historical synced transcripts without downloading new videos."
+    )
+    return parser.parse_args()
 
-    args = parser.parse_args()
+
+def main() -> None:
+    args = parse_args()
 
     playlist_path = Path(args.playlist)
     csv_path = Path(args.csv)
     output_dir = Path(args.output_dir)
+
+    if args.compile_only:
+        print("Running in Compile Only Mode...")
+        sync_channels.bulk_compile_historical_transcripts(
+            csv_path=csv_path,
+            output_dir=output_dir,
+            llm_model=args.ollama_model,
+            ollama_url=args.ollama_url
+        )
+        return
 
     url = args.url
     if not url:
@@ -144,7 +149,9 @@ def main() -> None:
                 model_name=args.model,
                 keep_audio=args.keep_audio,
                 playlist_path=playlist_path,
-                csv_path=csv_path
+                csv_path=csv_path,
+                llm_model=args.ollama_model,
+                ollama_url=args.ollama_url
             )
             return
         else:
@@ -163,8 +170,11 @@ def main() -> None:
         url=url,
         output_dir=str(output_dir),
         model_name=args.model,
-        keep_audio=args.keep_audio
+        keep_audio=args.keep_audio,
+        llm_model=args.ollama_model,
+        ollama_url=args.ollama_url
     )
+
 
 if __name__ == "__main__":
     try:
